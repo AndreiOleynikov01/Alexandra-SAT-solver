@@ -11,6 +11,10 @@ namespace Graph
 		case UNDECIDED:
 			{
 				state = TRUE;
+				for (IValidatable* var : funouts)
+				{
+
+				}
 				break;
 			}
 		case UNVISITED:
