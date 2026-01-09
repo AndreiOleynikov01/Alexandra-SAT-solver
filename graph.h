@@ -11,14 +11,14 @@ namespace Graph
 
 	struct Validator 
 	{
-		Validator(Node*, Node::State, IValidatable);
+		Validator(Node*, Node::State, IValidatable*);
 
 		void operator()();
 
 	private:
 		Node* me;
 		Node::State state;
-		IValidatable target;
+		IValidatable* target;
 	};
 
 	class Node

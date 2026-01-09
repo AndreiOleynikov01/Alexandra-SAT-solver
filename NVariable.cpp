@@ -10,12 +10,11 @@ namespace Graph
 		{
 		case UNDECIDED:
 			{
+				Node* me = this;
 				state = TRUE;
 				for (IValidatable* var : funouts)
 				{
-					Utilities::ThreadPool::make_thread([]() {
-							
-						});
+					Utilities::ThreadPool::make_thread(Validator(me, state, var));
 				}
 				break;
 			}
@@ -30,7 +29,7 @@ namespace Graph
 			}
 		case FALSE:
 			{
-				throw "Conflict found in variable " + me;
+				Utilities::ThreadPool::report_conflict(me);
 			}
 		}
 	}
@@ -42,6 +41,11 @@ namespace Graph
 			case UNDECIDED:
 			{
 				state = FALSE;
+				Node* me = this;
+				for (IValidatable* var : funouts)
+				{
+					Utilities::ThreadPool::make_thread(Validator(me, state, var));
+				}
 				break;
 			}
 			case UNVISITED:
@@ -55,7 +59,7 @@ namespace Graph
 			}
 			case TRUE:
 			{
-				throw "Conflict found in variable " + me;
+				Utilities::ThreadPool::report_conflict(me);
 			}
 		}
 	}
@@ -74,10 +78,20 @@ namespace Graph
 			}
 			case FALSE:
 			{
+				Node* me = this;
+				for (IValidatable* var : funouts)
+				{
+					Utilities::ThreadPool::make_thread(Validator(me, state, var));
+				}
 				break;
 			}
 			case TRUE:
 			{
+				Node* me = this;
+				for (IValidatable* var : funouts)
+				{
+					Utilities::ThreadPool::make_thread(Validator(me, state, var));
+				}
 				break;
 			}
 		}
