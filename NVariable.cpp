@@ -13,7 +13,9 @@ namespace Graph
 				state = TRUE;
 				for (IValidatable* var : funouts)
 				{
-
+					Utilities::ThreadPool::make_thread([]() {
+							
+						});
 				}
 				break;
 			}

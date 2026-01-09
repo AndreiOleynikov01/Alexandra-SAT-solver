@@ -3,9 +3,22 @@
 
 namespace Graph
 {
-	class IValidatable 
+	struct IValidatable 
 	{
 		void virtual validate(Node*, Node::State);
+
+	};
+
+	struct Validator 
+	{
+		Validator(Node*, Node::State, IValidatable);
+
+		void operator()();
+
+	private:
+		Node* me;
+		Node::State state;
+		IValidatable target;
 	};
 
 	class Node
