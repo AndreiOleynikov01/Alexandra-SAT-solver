@@ -43,7 +43,7 @@ namespace Utilities
 		std::unique_lock<std::mutex> lock(mutex);
 		cv.wait(lock, []() {return thread_count == 0;});
 
-		std::lock_guard<std::mutex> guard(mutex);
+		//std::lock_guard<std::mutex> guard(mutex);
 		return conflicts.size() == 0;
 	}
 
