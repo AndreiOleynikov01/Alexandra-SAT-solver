@@ -34,12 +34,12 @@ namespace Graph
 
 		static enum State
 		{
-			TRUE, FALSE, UNDECIDED, UNVISITED
+			TRUE, FALSE, UNDECIDED, UNVISITED, CONFLICT
 		};
 
 		std::vector<IValidatable*> funouts;
 		
-		const int me ;
+		const int me;
 	};
 
 	class NVariable : public Node
@@ -53,5 +53,7 @@ namespace Graph
 	private:
 		State state;
 	};
+
+
 
 }
