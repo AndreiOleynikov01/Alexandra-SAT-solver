@@ -2,14 +2,7 @@
 
 namespace Graph
 {
-	void Node::set_true() {}
-	void Node::set_false() {}
-	void Node::set_undecided() {}
+	void Node::propogate(std::stack<int>*) {}
 
-	void Node::add_funout(IValidatable* node)
-	{
-		funouts.push_back(node);
-	}
-
-	Node::Node(int me) : me(me), funouts() {}
+	Node::Node(int me) : me(me){}
 }

@@ -3,57 +3,67 @@
 
 namespace Graph
 {
-	struct IValidatable 
+	enum State
 	{
-		void virtual validate(Node*, Node::State);
-
+		TRUE, FALSE, CONFLICT
 	};
 
-	struct Validator 
+	class Accumulator
 	{
-		Validator(Node*, Node::State, IValidatable*);
-
-		void operator()();
-
-	private:
-		Node* me;
-		Node::State state;
-		IValidatable* target;
+	public:
+		void accumulate(std::stack<int>*, State);
 	};
 
 	class Node
 	{
 	public:
-		void virtual set_true();
-		void virtual set_false();
-		void virtual set_undecided();
-
-		void add_funout(IValidatable*);
+		void virtual propogate(std::stack<int>*);
 
 		Node(int);
-
-		static enum State
-		{
-			TRUE, FALSE, UNDECIDED, UNVISITED, CONFLICT
-		};
-
-		std::vector<IValidatable*> funouts;
 		
 		const int me;
 	};
 
-	class NVariable : public Node
+	class NVariable : virtual Node
 	{
+		Accumulator* accumulator;
 	public:
-		void set_true();
-		void set_false();
-		void set_undecided();
+		void propagate(std::stack<int>*);
 
-		NVariable(int me);
-	private:
-		State state;
+		NVariable(int, Accumulator*);
 	};
 
+	class NAnd : virtual Node
+	{
+		Node* left;
+		Node* right;
+	public:
+		void propagate(std::stack<int>*);
 
+		NAnd(int, Node*, Node*);
+	};
 
+	class NNot : virtual Node
+	{
+		Node* fanin;
+	public:
+		void propagate(std::stack<int>*);
+
+		NNot(int, Node*);
+	};
+
+	/*template<class N>
+	class Concurrent :public N
+	{
+	private:
+		std::mutex mutex;
+	public:
+		Concurrent(int me) : N(me) {}
+
+		void propagate(std::stack<int>*)
+		{
+			std::lock
+			N::propagate(std::stack<int>*);
+		}
+	};*/
 }
