@@ -52,6 +52,30 @@ namespace Graph
 		NNot(int, Node*);
 	};
 
+	class NLatch : virtual Node
+	{
+		Node* fanin;
+		const int next_state;
+		Accumulator* accumulator;
+	public:
+		void propagate(std::stack<int>*);
+
+		NLatch(int, int, Node*, Accumulator*);
+	};
+
+	class NodeHandler : virtual Node
+	{
+		Node* node;
+	public:
+		void propagate(std::stack<int>*);
+
+		NodeHandler();
+
+		NodeHandler(Node*);
+
+		void set_node(Node*);
+	};
+
 	/*template<class N>
 	class Concurrent :public N
 	{

@@ -1,3 +1,3 @@
 #pragma once
-#include "graph.h"
+#include "graphTemplates.h"
 #include "utilities.h"
