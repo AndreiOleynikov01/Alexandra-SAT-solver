@@ -64,6 +64,6 @@ namespace Utilities
 		Entry* pop();
 
 	private:
-		Entry* top;
+		Entry* entry;
 	};
 }
