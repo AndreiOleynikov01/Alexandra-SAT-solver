@@ -6,6 +6,8 @@ namespace Graph
 
 	void StartPoint::start()
 	{
-		//implement with later: requires solver thread
+		Utilities::Stack sat_trace;
+
+		fanins[0]->propogate(sat_trace, 0);
 	}
 }
