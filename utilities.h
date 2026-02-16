@@ -32,4 +32,38 @@ namespace Utilities
 
 		static void report_conflict(int);
 	};
+
+	class Stack
+	{
+	public:
+
+		static struct Entry
+		{
+			const int value;
+			Entry* prev;
+
+			Entry(int, Entry*);
+
+			Entry(int);
+
+			Entry(Entry*);
+		};
+
+		Stack();
+
+		Stack(Stack*);
+
+		Stack& operator=(Stack&);
+
+		int top();
+
+		Entry* top_entry();
+
+		void push(int);
+
+		Entry* pop();
+
+	private:
+		Entry* top;
+	};
 }

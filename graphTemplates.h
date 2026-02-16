@@ -6,14 +6,27 @@ namespace Graph
 	template<int N>
 	class GeneralStartPoint
 	{
+	public:
 		Node* fanins[N];
 
-	public:
-		GeneralStartPoint(Node* nodes[N]):fanins(nodes) {}
+		GeneralStartPoint(Node* nodes[N]) : fanins()
+		{
+			for (int i = 0; i < N; i++)
+			{
+				fanins[i] = nodes[i];
+			}
+		}
 
 		void start()
 		{
-			//implement with later: requires solver thread
+			Utilities::Stack sat_trace(0);
+
+			for (int i = 0; i < N; i++)
+			{
+				Utilities::Stack sub_trace(sat_trace);
+				sub_trace.push(-(i + 1));
+				Utilities::ThreadPool::make_thread(Propagate(sub_trace, 0, fanins[i]));
+			}
 		}
 	};
 

@@ -4,9 +4,9 @@ namespace Graph
 {
 	NAnd::NAnd(int me, Graph::Node* left, Graph::Node* right) : Node(me), left(left), right(right) {}
 
-	void NAnd::propagate(std::stack<int>* sat_trace)
+	void NAnd::propagate(Utilities::Stack sat_trace, int last_node)
 	{
-		left->propogate(sat_trace);
-		//implement later: create tread to propogate right
+		Utilities::ThreadPool::make_thread(Graph::Propagate(Utilities::Stack(sat_trace), me, right));
+		left->propogate(sat_trace, me);
 	}
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "dependancies.h"
+#include "utilities.h"
 
 namespace Graph
 {
@@ -11,13 +11,13 @@ namespace Graph
 	class Accumulator
 	{
 	public:
-		void accumulate(std::stack<int>*, State);
+		void accumulate(Utilities::Stack, int);
 	};
 
 	class Node
 	{
 	public:
-		void virtual propogate(std::stack<int>*);
+		void virtual propogate(Utilities::Stack, int);
 
 		Node(int);
 		
@@ -28,7 +28,7 @@ namespace Graph
 	{
 		Accumulator* accumulator;
 	public:
-		void propagate(std::stack<int>*);
+		void propagate(Utilities::Stack, int);
 
 		NVariable(int, Accumulator*);
 	};
@@ -38,7 +38,7 @@ namespace Graph
 		Node* left;
 		Node* right;
 	public:
-		void propagate(std::stack<int>*);
+		void propagate(Utilities::Stack, int);
 
 		NAnd(int, Node*, Node*);
 	};
@@ -47,7 +47,7 @@ namespace Graph
 	{
 		Node* fanin;
 	public:
-		void propagate(std::stack<int>*);
+		void propagate(Utilities::Stack, int);
 
 		NNot(int, Node*);
 	};
@@ -58,7 +58,7 @@ namespace Graph
 		const int next_state;
 		Accumulator* accumulator;
 	public:
-		void propagate(std::stack<int>*);
+		void propagate(Utilities::Stack, int);
 
 		NLatch(int, int, Node*, Accumulator*);
 	};
@@ -67,7 +67,7 @@ namespace Graph
 	{
 		Node* node;
 	public:
-		void propagate(std::stack<int>*);
+		void propagate(Utilities::Stack, int);
 
 		NodeHandler();
 
@@ -75,19 +75,17 @@ namespace Graph
 
 		void set_node(Node*);
 	};
-
-	/*template<class N>
-	class Concurrent :public N
+	class Propagate
 	{
-	private:
-		std::mutex mutex;
-	public:
-		Concurrent(int me) : N(me) {}
+		Utilities::Stack sat_trace;
+		int last_node;
+		Node* target;
 
-		void propagate(std::stack<int>*)
-		{
-			std::lock
-			N::propagate(std::stack<int>*);
-		}
-	};*/
+	public:
+		Propagate(Utilities::Stack, int, Node*);
+
+		void operator()();
+	};
+
+	
 }
