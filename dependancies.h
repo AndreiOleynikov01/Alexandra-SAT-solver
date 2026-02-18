@@ -1,5 +1,5 @@
 #pragma once
-#include <Map>
+#include <map>
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -11,3 +11,4 @@
 #include <array>
 #include <istream>
 #include <fstream>
+#include <sstream>

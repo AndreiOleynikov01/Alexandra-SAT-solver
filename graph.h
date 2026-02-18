@@ -24,7 +24,7 @@ namespace Graph
 		const int me;
 	};
 
-	class NVariable : virtual Node
+	class NVariable : public virtual Node
 	{
 		Accumulator* accumulator;
 	public:
@@ -33,7 +33,7 @@ namespace Graph
 		NVariable(int, Accumulator*);
 	};
 
-	class NAnd : virtual Node
+	class NAnd : public virtual Node
 	{
 		Node* left;
 		Node* right;
@@ -43,7 +43,7 @@ namespace Graph
 		NAnd(int, Node*, Node*);
 	};
 
-	class NNot : virtual Node
+	class NNot : public virtual Node
 	{
 		Node* fanin;
 	public:
@@ -52,7 +52,7 @@ namespace Graph
 		NNot(int, Node*);
 	};
 
-	class NLatch : virtual Node
+	class NLatch : public virtual Node
 	{
 		Node* fanin;
 		const int next_state;
@@ -63,7 +63,7 @@ namespace Graph
 		NLatch(int, int, Node*, Accumulator*);
 	};
 
-	class NodeHandler : virtual Node
+	class NodeHandler : public virtual Node
 	{
 		Node* node;
 	public:

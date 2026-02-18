@@ -10,7 +10,7 @@ namespace Graph
 	};
 
 	template<int N>
-	class GeneralStartPoint : virtual IStartPoint
+	class GeneralStartPoint : public virtual IStartPoint
 	{
 	public:
 		Node* fanins[N];

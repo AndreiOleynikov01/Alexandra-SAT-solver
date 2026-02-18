@@ -3,28 +3,160 @@
 namespace Alexandra
 {
 
-	Solver::Solver(std::string& file_path) :nodes(), accumulator()
+	Solver::Solver(std::string& file_path) :file(), nodes(), delimiter(' '), accumulator()
 	{
 		if (file_path.substr(file_path.size() - 4) == ".aag")
 		{
-			std::ifstream file(file_path, std::ifstream::in);
+			file.open(file_path, std::ifstream::in);
 
-			std::string header;
-
-			char delimiter = ' ';
-
-			std::string token;
-
-			if (file >> header)
+			if (Solver::validate_header())
 			{
-				if (header.substr(0, 3) != "aag") throw "invalid format";
+				inputs();
 
+				latches();
 
+				outputs();
+
+				ands();
 			}
+			else throw std::invalid_argument("invalid file format");
 		}
 		else
 		{
-			throw "file is not accepted";
+			throw std::invalid_argument("file is not accepted");
 		}
 	}
+
+	bool Solver::validate_header()
+	{
+		std::string header;
+
+		file >> header;
+
+		std::stringstream stream(header);
+
+		std::string token;
+
+		std::vector<std::string> tokens;
+
+		while(std::getline(stream, token, delimiter))
+		{
+			tokens.push_back(token);
+		}
+
+		if (tokens.size() != 6)
+		{
+			return false;
+		}
+		else
+		{
+			if (tokens.at(0) != "aag") return false;
+
+			try
+			{
+				number_of_inputs = std::stoi(tokens.at(2));
+
+				number_of_latches = std::stoi(tokens.at(3));
+
+				number_of_outputs = std::stoi(tokens.at(4));
+
+				number_of_ands = std::stoi(tokens.at(5));
+			}
+			catch (std::invalid_argument)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	void Solver::add_node(int node_index)
+	{
+		if (node_index % 2)
+		{
+			Graph::NodeHandler* vertice = new Graph::NodeHandler();
+			Graph::NNot* not_node = new Graph::NNot(node_index, vertice);
+			Graph::NodeHandler not_vertice = new Graph::NodeHandler(not_node);
+
+			nodes.emplace(node_index, not_vertice);
+			nodes.emplace(node_index - 1, vertice);
+		}
+		else
+		{
+			Graph::NodeHandler* vertice = new Graph::NodeHandler();
+
+			nodes.emplace(node_index, vertice);
+		}
+	}
+
+	void Solver::inputs()
+	{
+		for (int i = 1; i <= number_of_inputs; i++)
+		{
+			std::string line;
+			file>>line;
+			int node_index;
+
+			try
+			{
+				node_index = std::stoi(line);
+			}
+			catch (std::invalid_argument)
+			{
+				throw new std::invalid_argument("invalid file format");
+			}
+
+			add_node(node_index);
+
+			nodes.at(node_index).set_node(new Graph::NVariable(node_index, &accumulator));
+		}
+	}
+
+	void Solver::latches()
+	{
+		for (int i = 1; i <= number_of_latches; i++)
+		{
+			std::string line;
+			file >> line;
+			std::stringstream stream(line);
+
+			int node_index;
+			int next_state;
+
+			try
+			{
+				std::string token_latch;
+				stream >> token_latch;
+				node_index = std::stoi(token_latch);
+
+				std::string token_next;
+				stream >> token_next;
+				next_state = std::stoi(token_next);
+			}
+			catch (std::invalid_argument)
+			{
+				throw  std::invalid_argument("invalid file format");
+			}
+
+			add_node(node_index);
+
+			Graph::Node* node_next_state;
+
+			if (!nodes.contains(next_state))
+			{
+				add_node(next_state);
+			}
+
+			node_next_state = &nodes.at(next_state);
+
+			Graph::NLatch* latch = new Graph::NLatch(node_index, next_state, node_next_state, &accumulator);
+			add_node(node_index);
+
+			nodes.at(next_state).set_node(latch);
+		}
+	}
+
+
 }
+
