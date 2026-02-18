@@ -66,4 +66,6 @@ namespace Utilities
 	private:
 		Entry* entry;
 	};
+
+	
 }

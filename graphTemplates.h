@@ -3,8 +3,14 @@
 
 namespace Graph
 {
+	class IStartPoint
+	{
+	public:
+		void virtual start();
+	};
+
 	template<int N>
-	class GeneralStartPoint
+	class GeneralStartPoint : virtual IStartPoint
 	{
 	public:
 		Node* fanins[N];

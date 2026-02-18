@@ -86,6 +86,4 @@ namespace Graph
 
 		void operator()();
 	};
-
-	
 }

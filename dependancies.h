@@ -9,3 +9,5 @@
 #include <stack>
 #include <iostream>
 #include <array>
+#include <istream>
+#include <fstream>
