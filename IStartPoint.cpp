@@ -1,4 +1,4 @@
-#include "graphTemplates.h"
+#include "graph.h"
 
 namespace Graph
 {
