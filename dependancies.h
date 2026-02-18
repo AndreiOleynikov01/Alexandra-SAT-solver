@@ -12,3 +12,4 @@
 #include <istream>
 #include <fstream>
 #include <sstream>
+#include <exception>

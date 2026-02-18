@@ -86,4 +86,21 @@ namespace Graph
 
 		void operator()();
 	};
+
+	class IStartPoint
+	{
+	public:
+		void virtual start();
+	};
+
+	class StartPoint : public IStartPoint
+	{
+		Node** fanins;
+		const int size;
+	public:
+		StartPoint(Node** nodes, int size);
+		StartPoint(Node**);
+
+		void start();
+	};
 }

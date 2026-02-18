@@ -1,5 +1,5 @@
 #pragma once
-#include "graphTemplates.h"
+#include "graph.h"
 
 namespace Alexandra
 {

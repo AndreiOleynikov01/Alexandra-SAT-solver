@@ -67,5 +67,9 @@ namespace Utilities
 		Entry* entry;
 	};
 
-	
+	struct Unsolvable : public std::exception
+	{
+		Unsolvable();
+		const char* what();
+	};
 }
