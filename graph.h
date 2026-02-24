@@ -14,6 +14,23 @@ namespace Graph
 		void accumulate(Utilities::Stack, int);
 	};
 
+	struct IPulse
+	{
+		const Utilities::Stack::Entry id;
+		bool operator==(IPulse&);
+		IPulse& operator+(IPulse&);
+		IPulse& operator=(IPulse&);
+		IPulse& operator+=(IPulse&);
+	};
+
+	struct UnitPulse : public virtual IPulse
+	{
+		const int variable;
+		const State state;
+
+		UnitPulse(int, State);
+	};
+
 	class Node
 	{
 	public:
