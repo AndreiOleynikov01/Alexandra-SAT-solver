@@ -2,7 +2,7 @@
 
 namespace Utilities
 {
-	Unsolvable::Unsolvable() :exception() {}
+	Unsolvable::Unsolvable() : exception() {}
 
 	const char* Unsolvable::what()
 	{

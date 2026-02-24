@@ -72,4 +72,16 @@ namespace Utilities
 		Unsolvable();
 		const char* what();
 	};
+
+	struct AllwaysTrue : public std::exception
+	{
+		AllwaysTrue();
+		const char* what();
+	};
+
+	struct AllwaysFalse : public std::exception
+	{
+		AllwaysFalse();
+		const char* what();
+	};
 }

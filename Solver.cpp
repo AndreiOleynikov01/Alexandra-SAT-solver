@@ -75,21 +75,37 @@ namespace Alexandra
 
 	void Solver::add_node(int node_index)
 	{
-		if (node_index % 2)
-		{
-			Graph::NodeHandler* vertice = new Graph::NodeHandler();
-			Graph::NNot* not_node = new Graph::NNot(node_index, vertice);
-			Graph::NodeHandler not_vertice = new Graph::NodeHandler(not_node);
 
-			nodes.emplace(node_index, not_vertice);
-			nodes.emplace(node_index - 1, vertice);
+		Graph::NodeHandler* vertice = new Graph::NodeHandler();
+		if (node_index == 0)
+		{
+			Graph::NFalse* node_0 = new Graph::NFalse(&accumulator);
+			vertice->set_node(node_0);
+			nodes.emplace(node_index, vertice);
+		}
+		else if (node_index == 1)
+		{
+			Graph::NTrue* node_1 = new Graph::NTrue(&accumulator);
+			vertice->set_node(node_1);
+			nodes.emplace(node_index, vertice);
 		}
 		else
 		{
-			Graph::NodeHandler* vertice = new Graph::NodeHandler();
+			if (node_index % 2)
+			{
+				Graph::NNot* not_node = new Graph::NNot(node_index, vertice);
+				Graph::NodeHandler not_vertice = new Graph::NodeHandler(not_node);
 
-			nodes.emplace(node_index, vertice);
+				nodes.emplace(node_index, not_vertice);
+				nodes.emplace(node_index - 1, vertice);
+			}
+			else
+			{
+
+				nodes.emplace(node_index, vertice);
+			}
 		}
+		
 	}
 
 	void Solver::inputs()
@@ -161,7 +177,7 @@ namespace Alexandra
 
 	void Solver::outputs()
 	{
-		if (number_of_outputs > 0)
+		if (number_of_outputs > 1)
 		{
 			Graph::Node** outputs = new Graph::Node* [number_of_outputs];
 
@@ -187,6 +203,43 @@ namespace Alexandra
 
 				*outputs = &nodes.at(index);
 				outputs++;
+			}
+
+			start_point = new Graph::StartPoint(outputs, number_of_outputs);
+		}
+		else if (number_of_outputs == 1)
+		{
+			Graph::Node** outputs = new Graph::Node * [number_of_outputs];
+
+			std::string line;
+			file >> line;
+			int index;
+
+			try
+			{
+				index = std::stoi(line);
+			}
+			catch (std::invalid_argument)
+			{
+				throw std::invalid_argument("invalid file format");
+			}
+
+			if (index == 1)
+			{
+				throw Utilities::AllwaysTrue();
+			}
+			else if (index == 0)
+			{
+				throw Utilities::AllwaysFalse();
+			}
+			else
+			{
+				if (!nodes.contains(index))
+				{
+					add_node(index);
+				}
+
+				*outputs = &nodes.at(index);
 			}
 
 			start_point = new Graph::StartPoint(outputs, number_of_outputs);

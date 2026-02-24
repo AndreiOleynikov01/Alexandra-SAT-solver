@@ -63,6 +63,24 @@ namespace Graph
 		NLatch(int, int, Node*, Accumulator*);
 	};
 
+	class NTrue : public virtual Node
+	{
+		Accumulator* accumulator;
+	public:
+		void propagate(Utilities::Stack, int);
+
+		NTrue(Accumulator*);
+	};
+
+	class NFalse : public virtual Node
+	{
+		Accumulator* accumulator;
+	public:
+		void propagate(Utilities::Stack, int);
+
+		NFalse(Accumulator*);
+	};
+
 	class NodeHandler : public virtual Node
 	{
 		Node* node;
@@ -75,6 +93,7 @@ namespace Graph
 
 		void set_node(Node*);
 	};
+
 	class Propagate
 	{
 		Utilities::Stack sat_trace;
