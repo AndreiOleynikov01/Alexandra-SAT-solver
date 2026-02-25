@@ -2,9 +2,9 @@
 
 namespace Utilities
 {
-	AllwaysTrue::AllwaysTrue() : exception() {}
+	AlwaysTrue::AlwaysTrue() : exception() {}
 
-	const char* AllwaysTrue::what()
+	const char* AlwaysTrue::what()
 	{
 		return "Problem always evaluates to 1";
 	}

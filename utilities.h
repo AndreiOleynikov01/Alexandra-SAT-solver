@@ -73,15 +73,15 @@ namespace Utilities
 		const char* what();
 	};
 
-	struct AllwaysTrue : public std::exception
+	struct AlwaysTrue : public std::exception
 	{
-		AllwaysTrue();
+		AlwaysTrue();
 		const char* what();
 	};
 
-	struct AllwaysFalse : public std::exception
+	struct AlwaysFalse : public std::exception
 	{
-		AllwaysFalse();
+		AlwaysFalse();
 		const char* what();
 	};
 }

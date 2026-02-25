@@ -2,9 +2,9 @@
 
 namespace Utilities
 {
-	AllwaysFalse::AllwaysFalse() :exception() {}
+	AlwaysFalse::AlwaysFalse() :exception() {}
 
-	const char* AllwaysFalse::what()
+	const char* AlwaysFalse::what()
 	{
 		return "Problem always evaluates to 0";
 	}

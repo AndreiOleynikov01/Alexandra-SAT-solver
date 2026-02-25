@@ -10,25 +10,46 @@ namespace Graph
 
 	class Accumulator
 	{
+		std::map<Utilities::Stack::Entry*, IPulse&> pulses;
 	public:
+		Accumulator();
 		void accumulate(Utilities::Stack, int);
+		IPulse& solve();
+		IPulse& solve(std::map<int, bool>&);
 	};
 
 	struct IPulse
 	{
-		const Utilities::Stack::Entry id;
+		IPulse();
 		bool operator==(IPulse&);
 		IPulse& operator+(IPulse&);
 		IPulse& operator=(IPulse&);
 		IPulse& operator+=(IPulse&);
 	};
 
-	struct UnitPulse : public virtual IPulse
+	
+	class UnitPulse : public virtual IPulse
 	{
-		const int variable;
-		const State state;
+		std::map<int, State> values;
+	public:
+		UnitPulse();
+	};
 
-		UnitPulse(int, State);
+	class Pulse : public virtual IPulse
+	{
+		const bool is_negative;
+		std::vector<IPulse&> pulses;
+	public:
+		Pulse();
+		Pulse(bool);
+	};
+
+	class AggregatePulse : public virtual IPulse
+	{
+		std::vector<int> variables;
+		std::map<std::vector<State>, Pulse> pulses;
+	public:
+		AggregatePulse();
 	};
 
 	class Node
