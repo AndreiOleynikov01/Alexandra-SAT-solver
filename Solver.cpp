@@ -226,11 +226,11 @@ namespace Alexandra
 
 			if (index == 1)
 			{
-				throw Utilities::AllwaysTrue();
+				throw Utilities::AlwaysTrue();
 			}
 			else if (index == 0)
 			{
-				throw Utilities::AllwaysFalse();
+				throw Utilities::AlwaysFalse();
 			}
 			else
 			{

@@ -5,71 +5,116 @@ namespace Graph
 {
 	enum State
 	{
-		TRUE, FALSE, CONFLICT
+		ANY, TRUE, FALSE, CONFLICT
 	};
 
 	class Accumulator
 	{
-		std::map<Utilities::Stack::Entry*, IPulse&> pulses;
+		static class AccNode
+		{
+			std::mutex mutex;
+			bool master;
+			std::vector<UnitPulse*> signals;
+			std::vector<AccNode*> nodes;
+		public:
+			AccNode(bool);
+			void add_pulse(IPulse*);
+			void add_node(AccNode*);
+			IPulse* fold();
+		};
+
+		std::mutex mutex;
+		std::map<Utilities::Stack::Entry*, AccNode*> accNodes;
+
+		void get_node(Utilities::Stack::Entry*);
+		void add_node(Utilities::Stack::Entry*, AccNode*);
 	public:
 		Accumulator();
 		void accumulate(Utilities::Stack, int);
-		IPulse& solve();
-		IPulse& solve(std::map<int, bool>&);
+		IPulse* solve();
+		IPulse* solve(std::map<int, bool>&);
+
+	};
+
+	struct IUnit
+	{
+		const State value;
+		const int variable;
+		IUnit(State, int);
 	};
 
 	struct IPulse
 	{
-		bool virtual operator==(IPulse&);
-		std::vector <IPulse&> virtual negate();
-		std::vector<IPulse&> virtual getValues();
-		std::string virtual print();
-	private:
-		bool negatitve;
+		static enum PulseType {
+			UnitPulse, Pulse, AggregatedPulse
+		};
+
+		const PulseType type;
+
+		IPulse(PulseType);
+
+		virtual Graph::AggregatedPulse*  toAggregatedPulse();
+		virtual Graph::Pulse* toPulse();
+		virtual Graph::UnitPulse* toUnitPulse();
+
+		virtual IPulse* operator+(IPulse&) ;
+		virtual bool operator==(IPulse&) ;
+		virtual IPulse* open();
+		virtual std::vector <IPulse*> getvalues();
+		virtual std::vector<IUnit> getVariables();
+		virtual std::string print();
+		virtual bool isNegative();
 	};
 
-	class UnitPulse : public virtual IPulse
+	class UnitPulse : public virtual IPulse, public virtual IUnit
 	{
-		int value;
-		bool isNegative;
 	public:
-		UnitPulse(bool, int);
-		bool operator==(IPulse&);
-		std::vector <IPulse&> negate();
-		std::vector<IPulse&> getValues();
+		UnitPulse(State = TRUE, int);
+		Graph::UnitPulse* toUnitPulse();
+		IPulse* operator+(IPulse&) ;
+		IPulse* open();
+		bool operator==(IPulse&) ;
+		std::vector <IPulse*> getvalues();
+		std::vector<IUnit> getVariables();
 		std::string print();
+		bool  isNegative();
 	};
 
 	class Pulse : public virtual IPulse
 	{
-		std::vector<IPulse&> pulses;
+		std::vector<IPulse*> pulses;
+		bool const negative;
 	public:
-		Pulse();
-		Pulse(UnitPulse&);
+		Pulse(bool = true);
+		Pulse(bool = true, std::vector<IPulse*>);
+		Graph::Pulse* toPulse();
+		IPulse* open();
+		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
-		std::vector <IPulse&> negate();
-		std::vector<IPulse&> getValues();
+		std::vector <IPulse*> getvalues();
+		std::vector<IUnit> getVariables();
 		std::string print();
+		bool isNegative();
 	};
 
-	class AggregatePulse : public virtual IPulse
+	class AggregatedPulse : public virtual IPulse
 	{
-		std::set<std::vector<State>> exclusionSet;
-		std::vector<int> definitiveSet;
-		std::set<std::vector<State>> definitiveConfigurations;
-		std::vector<IPulse&> dependantSet;
+		const bool negative;
+		long int size;
+		std::vector<std::vector<IUnit>> exclusionSet;
+		std::vector<IPulse*> definitiveSet;
 	public:
-		AggregatePulse();
-		AggregatePulse(UnitPulse&);
-		AggregatePulse(Pulse&);
+		AggregatedPulse(bool = false);
+		AggregatedPulse(Graph::Pulse&, Graph::Pulse&);
+		Graph::AggregatedPulse* toAggregatedPulse();
+		IPulse* open();
+		IPulse* operator+(IPulse&) ;
 		bool operator==(IPulse&);
-		std::vector <IPulse&> negate();
-		std::vector<IPulse&> getValues();
+		std::vector <IPulse*> getvalues();
+		std::vector<IUnit> getVariables();
 		std::string print();
+		bool isNegative();
 	};
-
-	Pulse& operator+(Pulse&, Pulse&);
-	AggregatePulse& operator+(AggregatePulse&, AggregatePulse&);
 
 	class Node
 	{
