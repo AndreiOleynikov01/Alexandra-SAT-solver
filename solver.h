@@ -46,6 +46,10 @@ namespace Alexandra
 
 	class Result 
 	{
-		std::string print();
+		Graph::IPulse* value;
+	public:
+		Result(Graph::IPulse*);
+
+		operator std::string();
 	};
 }

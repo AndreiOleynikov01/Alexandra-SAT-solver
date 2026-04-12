@@ -301,5 +301,17 @@ namespace Alexandra
 			nodes.at(node_index).set_node(node);
 		}
 	}
+
+	Result& Solver::solve()
+	{
+		start_point->start();
+		return *new Result(accumulator.solve());
+	}
+
+	Result& Solver::solve(std::map<int, bool> assumption)
+	{
+		start_point->start();
+		return *new Result(accumulator.solve(assumption));
+	}
 }
 

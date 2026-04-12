@@ -14,5 +14,5 @@
 #include <sstream>
 #include <exception>
 #include <set>
-#include <bitset>
+#include <queue>
 #include <compare>

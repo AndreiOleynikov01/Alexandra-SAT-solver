@@ -2,55 +2,95 @@
 
 namespace Utilities
 {
-	ThreadPool::Action::Action(std::function<void()> action) : action(action)
+	ThreadPool::Action::Action()
 	{
-		increment_thread_count();
+		report_task();
 	}
 
 	void ThreadPool::Action::operator()() 
 	{
-		action();
-		decrement_thread_count();
+		std::unique_lock<std::mutex> lock(mutex);
+		std::function<void()> action;
+		while (!solved)
+			{
+			if (tasks.empty())
+			{
+				cv.wait(lock, []() {!tasks.empty(); });
+			}
+			else
+			{
+				action = tasks.front();
+				tasks.pop();
+				lock.unlock();
+				action();
+				report_task_completion();
+				if (thread_count == 0)
+				{
+					break;
+				}
+			}
+		}
 	}
 
-	void ThreadPool::increment_thread_count() 
+	void ThreadPool::report_task()
 	{
-		mutex.lock();
-		thread_count++;
-		mutex.unlock();
+		std::lock_guard<std::mutex> synchronise(mutex);
+
+		tasks_reported++;
 	}
 
-	void ThreadPool::decrement_thread_count()
+	void ThreadPool::report_task_completion()
 	{
-		mutex.lock();
-		thread_count--;
-		mutex.unlock();
+		std::lock_guard<std::mutex> synchronise(mutex);
+
+		tasks_completed++;
 		cv.notify_all();
 	}
 
-	void ThreadPool::initialise()
+	void ThreadPool::initialise(int number_of_threads)
 	{
-		thread_count = 0;
+		thread_count = number_of_threads;
+		tasks = std::queue<std::function<void()>>();
+		tasks_completed = 0;
+		tasks_reported = 0;
+		solved = false;
+
+		for (int i = 1; i <= thread_count; i++)
+		{
+			std::thread(new ThreadPool::Action);
+		}
 	}
 
-	std::thread ThreadPool::make_thread(std::function<void()> action)
+	void ThreadPool::make_thread(std::function<void()> action)
 	{
-		return std::thread(ThreadPool::Action(action));
+
+		std::lock_guard<std::mutex> synchronise(mutex);
+
+		tasks.push(action);
+		if (thread_count == 0)
+		{
+			std::thread(new ThreadPool::Action);
+		}
 	}
 
 	bool ThreadPool::wait_until_done()
 	{
 		std::unique_lock<std::mutex> lock(mutex);
-		cv.wait(lock, []() {return thread_count == 0;});
+		cv.wait(lock, []() {return tasks_completed > 0 && tasks_completed == tasks_reported; });
 
-		//std::lock_guard<std::mutex> guard(mutex);
-		return conflicts.size() == 0;
+		tasks_completed = 0;
+		tasks_reported = 0;
+
+		lock.release();
 	}
 
-	void ThreadPool::report_conflict(int node)
+	void ThreadPool::problem_solved()
 	{
-		mutex.lock();
-		conflicts.push_back(node);
-		mutex.unlock();
+		{
+			std::unique_lock<std::mutex> lock(mutex);
+
+			solved = true;
+		}
+		cv.notify_all();
 	}
 }

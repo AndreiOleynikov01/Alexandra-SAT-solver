@@ -39,4 +39,9 @@ namespace Utilities
 		entry = entry->prev;
 		return entry;
 	}
+
+	bool Stack::empty()
+	{
+		return entry == NULL;
+	}
 }

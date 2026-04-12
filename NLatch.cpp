@@ -8,7 +8,16 @@ namespace Graph
 	{
 		if (last_node < next_state)
 		{
-			accumulator->accumulate(sat_trace, 0);
+			if ((last_node == me + 1))
+			{
+				sat_trace.pop();
+				accumulator->accumulate(sat_trace, me, true);
+			}
+			else
+			{
+
+				accumulator->accumulate(sat_trace, me, false);
+			}
 		}
 		else
 		{

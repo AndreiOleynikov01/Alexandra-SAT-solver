@@ -7,30 +7,36 @@ namespace Utilities
 	{
 		static std::mutex mutex;
 		static std::condition_variable cv;
-		static int thread_count;
-		static std::list<int> conflicts;
-		
-		static void increment_thread_count();
+		static std::queue<std::function<void()>> tasks;
 
-		static void decrement_thread_count();
+		static int tasks_reported;
+		static int tasks_completed;
+
+		static bool solved;
 
 		static struct Action
 		{
-			std::function<void()> action;
-
-			Action(std::function<void()>);
+			Action();
 
 			void operator()();
 		};
 
-	public:
-		static void initialise();
+		static void report_task();
 
-		static std::thread make_thread(std::function<void()>);
+		static void report_task_completion();
+
+	public:
+
+		static int thread_count;
+
+		static void initialise(int = 0);
+
+		static void make_thread(std::function<void()>);
 
 		static bool	wait_until_done();
 
-		static void report_conflict(int);
+		static void problem_solved();
+
 	};
 
 	class Stack
@@ -62,6 +68,8 @@ namespace Utilities
 		void push(int);
 
 		Entry* pop();
+
+		bool empty();
 
 	private:
 		Entry* entry;
