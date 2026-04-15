@@ -33,7 +33,7 @@ namespace Utilities
 
 		static void make_thread(std::function<void()>);
 
-		static bool	wait_until_done();
+		static void	wait_until_done();
 
 		static void problem_solved();
 

@@ -6,9 +6,9 @@ namespace Graph
 	{
 		std::vector<IUnit> target_variables = pulse.getVariables();
 		std::vector<IUnit> variables = getVariables();
-		for (IUnit& unit : variables)
+		for (IUnit unit : variables)
 		{
-			for (IUnit& target_unit : target_variables)
+			for (IUnit target_unit : target_variables)
 			{
 				if (unit.variable == target_unit.variable)
 				{

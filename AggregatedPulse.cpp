@@ -105,7 +105,7 @@ namespace Graph
 			else
 			{
 				IPulse* prev = NULL;
-				IPulse* result;
+				IPulse* result = NULL;
 				for (std::vector<IUnit> exclude : exclusionSet)
 				{
 					std::vector<IPulse*> buffer;
@@ -180,12 +180,18 @@ namespace Graph
 
 			for (std::vector<IUnit> vec : left_buffer)
 			{
-				vec.emplace(right_padding.begin());
+				for (auto p = right_padding.begin(); p != right_padding.end(); p++)
+				{
+					vec.push_back(*p);
+				}
 				result->exclusionSet.push_back(vec);
 			}
 			for (std::vector<IUnit> vec : right_buffer)
 			{
-				vec.emplace(left_padding.begin());
+				for (auto p = left_padding.begin(); p != left_padding.end(); p++)
+				{
+					vec.push_back(*p);
+				}
 				result->exclusionSet.push_back(vec);
 			}
 			for (IPulse* p : definitiveSet)

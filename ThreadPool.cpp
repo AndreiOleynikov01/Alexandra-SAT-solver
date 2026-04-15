@@ -15,7 +15,7 @@ namespace Utilities
 			{
 			if (tasks.empty())
 			{
-				cv.wait(lock, []() {!tasks.empty(); });
+				cv.wait(lock, []() {return !tasks.empty(); });
 			}
 			else
 			{
@@ -31,6 +31,15 @@ namespace Utilities
 			}
 		}
 	}
+
+	int ThreadPool::thread_count = 0;
+	std::queue<std::function<void()>> ThreadPool::tasks = std::queue<std::function<void()>>();
+	int ThreadPool::tasks_completed = 0;
+	int ThreadPool::tasks_reported = 0;
+	bool ThreadPool::solved = false;
+	std::mutex ThreadPool::mutex;
+	std::condition_variable ThreadPool::cv;
+
 
 	void ThreadPool::report_task()
 	{
@@ -50,14 +59,10 @@ namespace Utilities
 	void ThreadPool::initialise(int number_of_threads)
 	{
 		thread_count = number_of_threads;
-		tasks = std::queue<std::function<void()>>();
-		tasks_completed = 0;
-		tasks_reported = 0;
-		solved = false;
 
 		for (int i = 1; i <= thread_count; i++)
 		{
-			std::thread(new ThreadPool::Action);
+			std::thread(std::bind([](Action* p) {p->operator()(); }, new Action()));
 		}
 	}
 
@@ -69,11 +74,11 @@ namespace Utilities
 		tasks.push(action);
 		if (thread_count == 0)
 		{
-			std::thread(new ThreadPool::Action);
+			std::thread(std::bind([](Action* p) {p->operator()(); }, new Action()));
 		}
 	}
 
-	bool ThreadPool::wait_until_done()
+	void ThreadPool::wait_until_done()
 	{
 		std::unique_lock<std::mutex> lock(mutex);
 		cv.wait(lock, []() {return tasks_completed > 0 && tasks_completed == tasks_reported; });

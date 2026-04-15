@@ -4,6 +4,13 @@ namespace Graph
 {
 	IUnit::IUnit(State value, int variable) : value(value), variable(variable) {}
 
+	IUnit::IUnit(IUnit* unit) : value(unit->value), variable(unit->variable) {}
+
+	IUnit& IUnit::operator=(IUnit& unit)
+	{
+		return *new IUnit(unit);
+	}
+
 	UnitPulse::UnitPulse(State value, int variable) : IPulse(PulseType::UnitPulse), IUnit(value,variable) {}
 
 	IPulse* UnitPulse::operator+(IPulse& pulse)
@@ -53,7 +60,7 @@ namespace Graph
 
 	bool UnitPulse::operator==(IPulse& lPulse)
 	{
-		for (IUnit& unit : lPulse.getVariables())
+		for (IUnit unit : lPulse.getVariables())
 		{
 			if (this->variable == unit.variable)
 			{
@@ -66,7 +73,7 @@ namespace Graph
 	std::vector<IUnit> UnitPulse::getVariables()
 	{
 		std::vector<IUnit> vec;
-		vec.push_back(*this);
+		vec.push_back(IUnit(value,variable));
 		return vec;
 	}
 

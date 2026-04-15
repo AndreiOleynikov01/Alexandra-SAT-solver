@@ -13,6 +13,8 @@ namespace Graph
 		const State value;
 		const int variable;
 		IUnit(State, int);
+		IUnit(IUnit*);
+		IUnit& operator=(IUnit&);
 	};
 
 	struct IPulse
@@ -66,7 +68,7 @@ namespace Graph
 	class AggregatedPulse : public virtual IPulse
 	{
 		const bool negative;
-		long int size;
+		int size;
 		std::vector<std::vector<IUnit>> exclusionSet;
 		std::vector<IPulse*> definitiveSet;
 	public:

@@ -53,14 +53,14 @@ namespace Graph
 		}
 		else
 		{
-			IPulse* result;
+			IPulse* result = NULL;
 			Add* new_adder = new Add(signals.size() + 1, NULL, result);
 			for (AccNode* n : nodes)
 			{
 				Utilities::ThreadPool::make_thread(Fold(new_adder, n));
 			}
 			new_adder->add_operand(new Pulse(master, signals));
-			Utilities::ThreadPool::make_thread(*new_adder);
+			Utilities::ThreadPool::make_thread(std::bind([](Add* p) {p->operator()(); }, new_adder));
 			Utilities::ThreadPool::wait_until_done();
 			return result;
 		}
@@ -156,7 +156,7 @@ namespace Graph
 			if (Utilities::ThreadPool::thread_count > 0)
 			{
 				lock.unlock();
-				Utilities::ThreadPool::make_thread(*this);
+				Utilities::ThreadPool::make_thread(std::bind([](Add* p) {p->operator()(); }, this));
 				return;
 			}
 			else
@@ -211,7 +211,7 @@ namespace Graph
 				Utilities::ThreadPool::make_thread(Fold(new_adder, n));
 			}
 			new_adder->add_operand(new Pulse(node->master, node->signals));
-			Utilities::ThreadPool::make_thread(*new_adder);
+			Utilities::ThreadPool::make_thread(std::bind([](Add* p) {p->operator()(); }, new_adder));
 		}
 	}
 }

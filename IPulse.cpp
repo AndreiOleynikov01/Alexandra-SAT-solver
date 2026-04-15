@@ -4,17 +4,17 @@ namespace Graph
 {
 	IPulse::IPulse(PulseType type) : type(type) {}
 
-	Graph::IPulse* IPulse::open() {}
+	Graph::IPulse* IPulse::open() { return NULL; }
 
-	bool IPulse::operator==(IPulse&){}
+	bool IPulse::operator==(IPulse&) { return false; };
 
-	IPulse* IPulse::operator+(IPulse&) {}
+	IPulse* IPulse::operator+(IPulse&) { return NULL; }
 
-	std::vector <IPulse*> IPulse::getvalues() {}
+	std::vector <IPulse*> IPulse::getvalues() { return std::vector<IPulse*>(); }
 
-	std::vector<IUnit> IPulse::getVariables() {}
+	std::vector<IUnit> IPulse::getVariables() { return std::vector<IUnit>(); }
 
-	std::string IPulse::print() {}
+	std::string IPulse::print() { return ""; }
 
-	bool IPulse::isNegative() {}
+	bool IPulse::isNegative() { return false; }
 }
