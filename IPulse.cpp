@@ -4,12 +4,6 @@ namespace Graph
 {
 	IPulse::IPulse(PulseType type) : type(type) {}
 
-	Graph::AggregatedPulse* IPulse::toAggregatedPulse() {}
-
-	Graph::Pulse* IPulse::toPulse() {}
-
-	Graph::UnitPulse* IPulse::toUnitPulse() {}
-
 	Graph::IPulse* IPulse::open() {}
 
 	bool IPulse::operator==(IPulse&){}

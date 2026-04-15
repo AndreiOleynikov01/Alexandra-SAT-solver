@@ -6,6 +6,6 @@ namespace Graph
 
 	void NTrue::propagate(Utilities::Stack sat_trace, int last_node)
 	{
-		accumulator->accumulate(sat_trace, me);
+		accumulator->accumulate(sat_trace, me, true);
 	}
 }

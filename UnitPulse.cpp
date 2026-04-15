@@ -11,27 +11,28 @@ namespace Graph
 		switch (pulse.type)
 		{
 		case PulseType::UnitPulse:
-			UnitPulse* upulse = pulse.toUnitPulse();
+		{
+			UnitPulse* upulse = dynamic_cast<Graph::UnitPulse*>(&pulse);
 			if (variable != upulse->variable)
 			{
-				if (upulse -> value != State::CONFLICT) 
+				if (upulse->value != State::CONFLICT)
 				{
 					std::vector<IPulse*> pulses;
 					pulses.push_back(this);
 					pulses.push_back(&pulse);
-					return new Graph::Pulse(false,pulses);
+					return new Graph::Pulse(false, pulses);
 				}
 				else
 				{
 					return &pulse;
 				}
-				
+
 			}
 			else if (value == upulse->value || upulse->value == State::ANY)
 			{
 				return this;
 			}
-			else if  (value == State::ANY)
+			else if (value == State::ANY)
 			{
 				return &pulse;
 			}
@@ -39,14 +40,10 @@ namespace Graph
 			{
 				return new UnitPulse(CONFLICT, 0);
 			}
+		}
 		default:
 			return pulse + *this;
 		}
-	}
-
-	Graph::UnitPulse* UnitPulse::toUnitPulse()
-	{
-		return this;
 	}
 
 	IPulse* UnitPulse::open() 

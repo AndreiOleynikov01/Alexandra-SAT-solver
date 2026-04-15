@@ -105,7 +105,7 @@ namespace Graph
 		}
 		case PulseType::Pulse:
 		{
-			Pulse* ppulse = pulse.toPulse();
+			Pulse* ppulse = dynamic_cast<Graph::Pulse*>(&pulse);
 			if (ppulse->negative == true && negative == true)
 			{
 				std::vector<IPulse*> common_buffer, left_buffer, right_buffer, new_buffer;
@@ -247,7 +247,7 @@ namespace Graph
 						}
 						else
 						{
-							for (IPulse* value : p->toPulse()->getvalues())
+							for (IPulse* value : dynamic_cast<Graph::Pulse*>(p)->getvalues())
 							{
 								new_buffer.push_back(value);
 							}
@@ -368,12 +368,6 @@ namespace Graph
 	Pulse::Pulse(bool negative) : IPulse(PulseType::Pulse), negative(negative), pulses() {}
 
 	Pulse::Pulse(bool negative, std::vector<IPulse*> pulses) : IPulse(PulseType::Pulse), negative(negative), pulses(pulses){}
-
-	Graph::Pulse* Pulse::toPulse()
-	{
-		return this;
-	}
-
 
 	IPulse* Pulse::open()
 	{

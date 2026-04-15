@@ -22,17 +22,17 @@ namespace Graph
 					if (*lp == *rp)
 					{
 						common = true;
-						common_variables.push_back(lp->toUnitPulse()->variable);
+						common_variables.push_back(dynamic_cast<Graph::UnitPulse*>(lp)->variable);
 					}
 				}
 				if (!common)
 				{
-					left_variables.push_back(lp->toUnitPulse()->variable);
+					left_variables.push_back(dynamic_cast<Graph::UnitPulse*>(lp)->variable);
 				}
 			}
 			for (IPulse* rp : right_buffer)
 			{
-				int rv = rp->toUnitPulse()->variable;
+				int rv = dynamic_cast<Graph::UnitPulse*>(&right)->variable;
 				bool common = false;
 				for (int lv : common_variables)
 				{
@@ -69,11 +69,6 @@ namespace Graph
 			exclusionSet.push_back(right_exclusive);
 			size = common_variables.size() + left_variables.size() + right_variables.size();
 		}
-	}
-
-	Graph::AggregatedPulse* AggregatedPulse::toAggregatedPulse()
-	{
-		return this;
 	}
 
 	bool AggregatedPulse::operator==(IPulse& pulse) 
@@ -153,7 +148,7 @@ namespace Graph
 				{
 					if (*p != *this)
 					{
-						right_padding.push_back(IUnit(ANY, p->toUnitPulse()->variable));
+						right_padding.push_back(IUnit(ANY, dynamic_cast<Graph::UnitPulse*>(p)->variable));
 					}
 				}
 			}
@@ -162,11 +157,11 @@ namespace Graph
 				for (IPulse* exc : pulse.getvalues())
 				{
 					right_buffer.push_back(exc->getVariables());
-					for (IPulse* p : pulse.toAggregatedPulse()->definitiveSet)
+					for (IPulse* p : dynamic_cast<Graph::AggregatedPulse*>(&pulse)->definitiveSet)
 					{
 						if (*p != *this)
 						{
-							right_padding.push_back(IUnit(ANY, p->toUnitPulse()->variable));
+							right_padding.push_back(IUnit(ANY, dynamic_cast<Graph::UnitPulse*>(p)->variable));
 						}
 					}
 				}
@@ -179,7 +174,7 @@ namespace Graph
 			{
 				if (*p != *this)
 				{
-					left_padding.push_back(IUnit(ANY, p->toUnitPulse()->variable));
+					left_padding.push_back(IUnit(ANY, dynamic_cast<Graph::UnitPulse*>(p)->variable));
 				}
 			}
 

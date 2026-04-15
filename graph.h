@@ -25,10 +25,6 @@ namespace Graph
 
 		IPulse(PulseType);
 
-		virtual Graph::AggregatedPulse*  toAggregatedPulse();
-		virtual Graph::Pulse* toPulse();
-		virtual Graph::UnitPulse* toUnitPulse();
-
 		virtual IPulse* operator+(IPulse&) ;
 		virtual bool operator==(IPulse&) ;
 		virtual IPulse* open();
@@ -41,8 +37,7 @@ namespace Graph
 	class UnitPulse : public virtual IPulse, public virtual IUnit
 	{
 	public:
-		UnitPulse(State = TRUE, int);
-		Graph::UnitPulse* toUnitPulse();
+		UnitPulse(State, int);
 		IPulse* operator+(IPulse&) ;
 		IPulse* open();
 		bool operator==(IPulse&) ;
@@ -58,8 +53,7 @@ namespace Graph
 		bool const negative;
 	public:
 		Pulse(bool = true);
-		Pulse(bool = true, std::vector<IPulse*>);
-		Graph::Pulse* toPulse();
+		Pulse(bool = true, std::vector<IPulse*> = std::vector<IPulse*>());
 		IPulse* open();
 		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
@@ -78,7 +72,6 @@ namespace Graph
 	public:
 		AggregatedPulse(bool = false);
 		AggregatedPulse(Graph::Pulse&, Graph::Pulse&);
-		Graph::AggregatedPulse* toAggregatedPulse();
 		IPulse* open();
 		IPulse* operator+(IPulse&) ;
 		bool operator==(IPulse&);
@@ -86,6 +79,61 @@ namespace Graph
 		std::vector<IUnit> getVariables();
 		std::string print();
 		bool isNegative();
+	};
+
+	class Accumulator
+	{
+		static struct AccNode
+		{
+			std::mutex mutex;
+			bool master;
+			std::vector<IPulse*> signals;
+			std::vector<AccNode*> nodes;
+
+			AccNode(bool);
+			void add_pulse(UnitPulse*);
+			void add_node(AccNode*);
+			IPulse* fold();
+		};
+
+		Utilities::Stack::Entry* master_pointer;
+		std::mutex mutex;
+		std::map<Utilities::Stack::Entry*, AccNode*> accNodes;
+
+		AccNode* get_node(Utilities::Stack::Entry*);
+		void add_node(Utilities::Stack::Entry*, AccNode*);
+	public:
+		Accumulator();
+		void accumulate(Utilities::Stack, int, bool);
+		IPulse* solve();
+		IPulse* solve(std::map<int, bool>&);
+
+		class Add
+		{
+			std::mutex mutex;
+			std::condition_variable cv;
+			const int number_of_operands;
+			std::vector<IPulse*> operands;
+			IPulse** result_buffer;
+			Add* adder;
+
+		public:
+			Add(int, Add* = NULL, IPulse* = NULL);
+
+			void add_operand(IPulse*);
+
+			void operator()();
+		};
+
+		static  class Fold
+		{
+			Add* adder;
+			AccNode* node;
+		public:
+			Fold(Add*, AccNode*);
+
+			void operator()();
+		};
 	};
 
 	class Node
@@ -197,58 +245,4 @@ namespace Graph
 		void start();
 	};
 
-	class Accumulator
-	{
-		static struct AccNode
-		{
-			std::mutex mutex;
-			bool master;
-			std::vector<IPulse*> signals;
-			std::vector<AccNode*> nodes;
-		
-			AccNode(bool);
-			void add_pulse(UnitPulse*);
-			void add_node(AccNode*);
-			IPulse* fold();
-		};
-
-		Utilities::Stack::Entry* master_pointer;
-		std::mutex mutex;
-		std::map<Utilities::Stack::Entry*, AccNode*> accNodes;
-
-		AccNode* get_node(Utilities::Stack::Entry*);
-		void add_node(Utilities::Stack::Entry*, AccNode*);
-	public:
-		Accumulator();
-		void accumulate(Utilities::Stack, int, bool);
-		IPulse* solve();
-		IPulse* solve(std::map<int, bool>&);
-
-		class Add
-		{
-			std::mutex mutex;
-			std::condition_variable cv;
-			const int number_of_operands;
-			std::vector<IPulse*> operands;
-			IPulse** result_buffer;
-			Add* adder;
-
-		public:
-			Add(int, Add* = NULL, IPulse* = NULL);
-
-			void add_operand(IPulse*);
-
-			void operator()();
-		};
-
-		static  class Fold
-		{
-			Add* adder;
-			AccNode* node;
-		public:
-			Fold(Add*, AccNode*);
-
-			void operator()();
-		};
-	};
 }

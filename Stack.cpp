@@ -14,7 +14,7 @@ namespace Utilities
 
 	Stack& Stack::operator=(Stack& stack)
 	{
-		return new Stack(stack);
+		return *new Stack(stack);
 	}
 
 	int Stack::top()

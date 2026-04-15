@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 		catch (std::invalid_argument* err)
 		{
 			std::cout << err << std::endl;
-			return;
+			return 0;
 		}
 
 		file_path = arguments[1];
@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 			catch (std::invalid_argument* err)
 			{
 				std::cout << err << std::endl;
-				return;
+				return 0;
 			}
 			if (variable / 2 == 0)
 			{
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 	else
 	{
 		std::cout << "invalid input: number of threads cannot be negative";
-		return;
+		return 0;
 	}
 
 	try

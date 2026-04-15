@@ -81,28 +81,28 @@ namespace Alexandra
 		{
 			Graph::NFalse* node_0 = new Graph::NFalse(&accumulator);
 			vertice->set_node(node_0);
-			nodes.emplace(node_index, vertice);
+			nodes[node_index] =  vertice;
 		}
 		else if (node_index == 1)
 		{
 			Graph::NTrue* node_1 = new Graph::NTrue(&accumulator);
 			vertice->set_node(node_1);
-			nodes.emplace(node_index, vertice);
+			nodes[node_index] = vertice;
 		}
 		else
 		{
 			if (node_index % 2)
 			{
 				Graph::NNot* not_node = new Graph::NNot(node_index, vertice);
-				Graph::NodeHandler not_vertice = new Graph::NodeHandler(not_node);
+				Graph::NodeHandler* not_vertice = new Graph::NodeHandler(not_node);
 
-				nodes.emplace(node_index, not_vertice);
-				nodes.emplace(node_index - 1, vertice);
+				nodes[node_index] = not_vertice;
+				nodes[node_index - 1] =  vertice;
 			}
 			else
 			{
 
-				nodes.emplace(node_index, vertice);
+				nodes[node_index] =  vertice;
 			}
 		}
 		
@@ -127,7 +127,7 @@ namespace Alexandra
 
 			add_node(node_index);
 
-			nodes.at(node_index).set_node(new Graph::NVariable(node_index, &accumulator));
+			nodes.at(node_index)->set_node(new Graph::NVariable(node_index, &accumulator));
 		}
 	}
 
@@ -166,12 +166,12 @@ namespace Alexandra
 				add_node(next_state);
 			}
 
-			node_next_state = &nodes.at(next_state);
+			node_next_state = nodes[next_state];
 
 			Graph::NLatch* latch = new Graph::NLatch(node_index, next_state, node_next_state, &accumulator);
 			add_node(node_index);
 
-			nodes.at(next_state).set_node(latch);
+			nodes[next_state]->set_node(latch);
 		}
 	}
 
@@ -201,7 +201,7 @@ namespace Alexandra
 					add_node(index);
 				}
 
-				*outputs = &nodes.at(index);
+				*outputs = nodes.at(index);
 				outputs++;
 			}
 
@@ -239,7 +239,7 @@ namespace Alexandra
 					add_node(index);
 				}
 
-				*outputs = &nodes.at(index);
+				*outputs = nodes.at(index);
 			}
 
 			start_point = new Graph::StartPoint(outputs, number_of_outputs);
@@ -296,9 +296,9 @@ namespace Alexandra
 				add_node(left_fanin);
 			}
 
-			Graph::Node* node = new Graph::NAnd(node_index, &nodes.at(left_fanin), &nodes.at(right_fanin));
+			Graph::Node* node = new Graph::NAnd(node_index, nodes.at(left_fanin), nodes.at(right_fanin));
 
-			nodes.at(node_index).set_node(node);
+			nodes.at(node_index)->set_node(node);
 		}
 	}
 

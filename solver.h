@@ -3,13 +3,22 @@
 
 namespace Alexandra
 {
+	class Result
+	{
+		Graph::IPulse* value;
+	public:
+		Result(Graph::IPulse*);
+
+		operator std::string();
+	};
+
 	class Solver
 	{
 		Graph::Accumulator accumulator;
 
 		Graph::IStartPoint* start_point;
 
-		std::map<int, Graph::NodeHandler&> nodes;
+		std::map<int, Graph::NodeHandler*> nodes;
 
 		std::ifstream file;
 
@@ -42,14 +51,5 @@ namespace Alexandra
 		Result& solve();
 
 		Result& solve(std::map<int, bool>);
-	};
-
-	class Result 
-	{
-		Graph::IPulse* value;
-	public:
-		Result(Graph::IPulse*);
-
-		operator std::string();
 	};
 }

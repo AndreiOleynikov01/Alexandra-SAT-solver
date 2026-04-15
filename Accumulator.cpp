@@ -25,7 +25,7 @@ namespace Graph
 		{
 			for (IPulse* s : signals)
 			{
-				if ((s->toUnitPulse()->variable != signal->variable && s->toUnitPulse()->value != signal->value) && s->toUnitPulse()->value != CONFLICT)
+				if ((dynamic_cast<Graph::UnitPulse*>(s)->variable != signal->variable && dynamic_cast<Graph::UnitPulse*>(s)->value != signal->value) && dynamic_cast<Graph::UnitPulse*>(s)->value != CONFLICT)
 				{
 					signals.push_back(signal);
 				}
