@@ -2,16 +2,10 @@
 
 int main(int argc, char* argv[])
 {
-	std::string args = *argv;
 		std::vector<std::string> arguments;
-		auto start_p = args.begin();
-		for (auto p = args.begin(); p != args.end(); p++)
+		for (int i = 1; i < argc; i++)
 		{
-			if (*p == ' ')
-			{
-				arguments.push_back(std::string(start_p, p));
-				start_p = p + 1;
-			}
+			arguments.push_back(argv[i]);
 		}
 
 		if (arguments.empty())

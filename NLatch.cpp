@@ -6,6 +6,8 @@ namespace Graph
 
 	void NLatch::propagate(Utilities::Stack sat_trace, int last_node)
 	{
+
+		std::cout << "propagating: " << me << " from " << last_node << std::endl;
 		if (last_node < next_state)
 		{
 			if ((last_node == me + 1))

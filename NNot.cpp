@@ -6,6 +6,8 @@ namespace Graph
 
 	void NNot::propagate(Utilities::Stack sat_trace, int last_node)
 	{
+
+		std::cout << "propagating: " << me << " from " << last_node << std::endl;
 		sat_trace.push(me);
 		fanin->propogate(sat_trace, me);
 	}

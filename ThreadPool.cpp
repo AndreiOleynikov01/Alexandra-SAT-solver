@@ -50,9 +50,11 @@ namespace Utilities
 
 	void ThreadPool::report_task_completion()
 	{
-		std::lock_guard<std::mutex> synchronise(mutex);
+		{
+			std::lock_guard<std::mutex> synchronise(mutex);
 
-		tasks_completed++;
+			tasks_completed++;
+		}
 		cv.notify_all();
 	}
 
@@ -62,7 +64,8 @@ namespace Utilities
 
 		for (int i = 1; i <= thread_count; i++)
 		{
-			std::thread(std::bind([](Action* p) {p->operator()(); }, new Action()));
+			std::thread thread(std::bind([](Action* p) {p->operator()(); }, new Action()));
+			thread.detach();
 		}
 	}
 
@@ -74,8 +77,10 @@ namespace Utilities
 		tasks.push(action);
 		if (thread_count == 0)
 		{
-			std::thread(std::bind([](Action* p) {p->operator()(); }, new Action()));
+			std::thread thread(std::bind([](Action* p) {p->operator()(); }, new Action()));
+			thread.detach();
 		}
+		cv.notify_all();
 	}
 
 	void ThreadPool::wait_until_done()

@@ -6,6 +6,8 @@ namespace Graph
 
 	void NAnd::propagate(Utilities::Stack sat_trace, int last_node)
 	{
+
+		std::cout << "propagating: " << me << " from " << last_node << std::endl;
 		Utilities::ThreadPool::make_thread(Graph::Propagate(Utilities::Stack(sat_trace), me, right));
 		left->propogate(sat_trace, me);
 	}

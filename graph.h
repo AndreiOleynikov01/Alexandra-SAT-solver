@@ -141,7 +141,7 @@ namespace Graph
 	class Node
 	{
 	public:
-		void virtual propogate(Utilities::Stack, int);
+		virtual void propogate(Utilities::Stack, int);
 
 		Node(int);
 		
@@ -236,7 +236,7 @@ namespace Graph
 		void virtual start();
 	};
 
-	class StartPoint : public IStartPoint
+	class StartPoint : public virtual IStartPoint
 	{
 		Node** fanins;
 		const int size;

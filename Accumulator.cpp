@@ -47,6 +47,8 @@ namespace Graph
 
 	IPulse* Accumulator::AccNode::fold()
 	{
+		std::lock_guard<std::mutex> synchronise(mutex);
+
 		if (nodes.empty())
 		{
 			return new Pulse(master, signals);

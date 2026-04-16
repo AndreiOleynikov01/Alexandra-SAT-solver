@@ -20,8 +20,13 @@ namespace Alexandra
 				ands();
 
 				file.close();
+
+				for (auto p = nodes.begin(); p != nodes.end(); p++)
+				{
+					std::cout << p->first << std::endl;
+				}
 			}
-			else throw std::invalid_argument("invalid file format");
+			else throw std::invalid_argument("invalid file format - header");
 		}
 		else
 		{
@@ -33,7 +38,7 @@ namespace Alexandra
 	{
 		std::string header;
 
-		file >> header;
+		std::getline(file,header);
 
 		std::stringstream stream(header);
 
@@ -113,7 +118,7 @@ namespace Alexandra
 		for (int i = 1; i <= number_of_inputs; i++)
 		{
 			std::string line;
-			file>>line;
+			std::getline(file, line);
 			int node_index;
 
 			try
@@ -127,7 +132,7 @@ namespace Alexandra
 
 			add_node(node_index);
 
-			nodes.at(node_index)->set_node(new Graph::NVariable(node_index, &accumulator));
+			nodes[node_index]->set_node(new Graph::NVariable(node_index, &accumulator));
 		}
 	}
 
@@ -136,7 +141,7 @@ namespace Alexandra
 		for (int i = 1; i <= number_of_latches; i++)
 		{
 			std::string line;
-			file >> line;
+			std::getline(file, line);
 			std::stringstream stream(line);
 
 			int node_index;
@@ -184,7 +189,7 @@ namespace Alexandra
 			for (int i = 1; i <= number_of_outputs; i++)
 			{
 				std::string line;
-				file >> line;
+				std::getline(file, line);
 				int index;
 
 				try 
@@ -201,7 +206,7 @@ namespace Alexandra
 					add_node(index);
 				}
 
-				*outputs = nodes.at(index);
+				*outputs = nodes[index];
 				outputs++;
 			}
 
@@ -212,7 +217,7 @@ namespace Alexandra
 			Graph::Node** outputs = new Graph::Node * [number_of_outputs];
 
 			std::string line;
-			file >> line;
+			std::getline(file, line);
 			int index;
 
 			try
@@ -239,7 +244,7 @@ namespace Alexandra
 					add_node(index);
 				}
 
-				*outputs = nodes.at(index);
+				*outputs = nodes[index];
 			}
 
 			start_point = new Graph::StartPoint(outputs, number_of_outputs);
@@ -255,7 +260,7 @@ namespace Alexandra
 		for (int i = 1; i < number_of_ands; i++)
 		{
 			std::string line;
-			file >> line;
+			std::getline(file, line);
 			std::stringstream stream(line);
 
 			std::string node_token;
