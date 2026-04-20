@@ -8,6 +8,6 @@ namespace Graph
 	{
 
 		std::cout << "starting propagation" << std::endl;
-		target->propogate(sat_trace, last_node);
+		target->propagate(sat_trace, last_node);
 	}
 }

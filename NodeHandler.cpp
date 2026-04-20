@@ -10,7 +10,7 @@ namespace Graph
 	{
 		if (node != NULL)
 		{
-			node->propogate(sat_trace, last_node);
+			node->propagate(sat_trace, last_node);
 		}
 		else
 		{

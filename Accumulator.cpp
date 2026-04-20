@@ -2,7 +2,7 @@
 
 namespace Graph
 {
-	Accumulator::AccNode::AccNode(bool is_master) : master(is_master), signals(), nodes(), mutex() {}
+	Accumulator::AccNode::AccNode(bool is_master) : master(is_master), signals(), nodes(){}
 
 	void Accumulator::AccNode::add_pulse(UnitPulse* signal) 
 	{
@@ -23,16 +23,23 @@ namespace Graph
 		}
 		else
 		{
-			for (IPulse* s : signals)
+			if (signals.empty())
 			{
-				if ((dynamic_cast<Graph::UnitPulse*>(s)->variable != signal->variable && dynamic_cast<Graph::UnitPulse*>(s)->value != signal->value) && dynamic_cast<Graph::UnitPulse*>(s)->value != CONFLICT)
+				signals.push_back(signal);
+			}
+			else
+			{
+				for (IPulse* s : signals)
 				{
-					signals.push_back(signal);
-				}
-				else
-				{
-					signals.erase(signals.begin(), signals.end());
-					signals.push_back(new UnitPulse(CONFLICT, 0));
+					bool duplicate = false;
+					if ((dynamic_cast<Graph::UnitPulse*>(s)->variable == signal->variable && dynamic_cast<Graph::UnitPulse*>(s)->value == signal->value)|| dynamic_cast<Graph::UnitPulse*>(s)->value != CONFLICT)
+					{
+						duplicate = true;
+					}
+					if (duplicate)
+					{
+						signals.push_back(signal);
+					}
 				}
 			}
 		}
@@ -47,11 +54,20 @@ namespace Graph
 
 	IPulse* Accumulator::AccNode::fold()
 	{
+		std::cout << "starting folding at master: " << master<< std::endl;
 		std::lock_guard<std::mutex> synchronise(mutex);
 
 		if (nodes.empty())
 		{
-			return new Pulse(master, signals);
+			std::cout << "nothing to return" << std::endl;
+			if (signals.size() == 1)
+			{
+				return signals.front();
+			}
+			else
+			{
+				return new Pulse(!master, signals);
+			}
 		}
 		else
 		{

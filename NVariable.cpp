@@ -6,6 +6,8 @@ namespace Graph
 
 	void NVariable::propagate(Utilities::Stack sat_trace, int last_node)
 	{ 
+
+		std::cout << "propagating: " << me << " from " << last_node << std::endl;
 		if ((last_node == me + 1))
 		{
 			sat_trace.pop();

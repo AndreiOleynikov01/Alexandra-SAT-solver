@@ -9,6 +9,6 @@ namespace Graph
 
 		std::cout << "propagating: " << me << " from " << last_node << std::endl;
 		sat_trace.push(me);
-		fanin->propogate(sat_trace, me);
+		fanin->propagate(sat_trace, me);
 	}
 }

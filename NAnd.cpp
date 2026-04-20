@@ -9,6 +9,6 @@ namespace Graph
 
 		std::cout << "propagating: " << me << " from " << last_node << std::endl;
 		Utilities::ThreadPool::make_thread(Graph::Propagate(Utilities::Stack(sat_trace), me, right));
-		left->propogate(sat_trace, me);
+		left->propagate(sat_trace, me);
 	}
 }

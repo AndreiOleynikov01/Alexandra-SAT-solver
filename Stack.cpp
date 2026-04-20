@@ -37,7 +37,7 @@ namespace Utilities
 	{
 		Stack::Entry* new_entry = entry;
 		entry = entry->prev;
-		return entry;
+		return new_entry;
 	}
 
 	bool Stack::empty()

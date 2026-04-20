@@ -2,7 +2,7 @@
 
 namespace Graph
 {
-	void Node::propogate(Utilities::Stack, int) {
+	void Node::propagate(Utilities::Stack, int) {
 		std::cout << "hello" << std::endl;
 	}
 

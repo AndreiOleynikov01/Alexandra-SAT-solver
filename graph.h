@@ -141,7 +141,7 @@ namespace Graph
 	class Node
 	{
 	public:
-		virtual void propogate(Utilities::Stack, int);
+		void virtual propagate(Utilities::Stack, int);
 
 		Node(int);
 		
@@ -152,12 +152,12 @@ namespace Graph
 	{
 		Accumulator* accumulator;
 	public:
-		void propagate(Utilities::Stack, int);
+		void propagate(Utilities::Stack, int); 
 
 		NVariable(int, Accumulator*);
 	};
 
-	class NAnd : public virtual Node
+	class NAnd : public  Node
 	{
 		Node* left;
 		Node* right;
@@ -207,8 +207,9 @@ namespace Graph
 
 	class NodeHandler : public virtual Node
 	{
-		Node* node;
 	public:
+		Node* node;
+	
 		void propagate(Utilities::Stack, int);
 
 		NodeHandler();

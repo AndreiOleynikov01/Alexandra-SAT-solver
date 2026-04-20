@@ -13,17 +13,17 @@ namespace Graph
 			if ((last_node == me + 1))
 			{
 				sat_trace.pop();
-				accumulator->accumulate(sat_trace, me, true);
+				accumulator->accumulate(sat_trace, 0, false);
 			}
 			else
 			{
 
-				accumulator->accumulate(sat_trace, me, false);
+				accumulator->accumulate(sat_trace, 0, true);
 			}
 		}
 		else
 		{
-			fanin->propogate(sat_trace, me);
+			fanin->propagate(sat_trace, me);
 		}
 	}
 }

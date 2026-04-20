@@ -3,32 +3,29 @@
 namespace Utilities
 {
 	ThreadPool::Action::Action()
-	{
-		report_task();
-	}
+	{}
 
 	void ThreadPool::Action::operator()() 
 	{
-		std::unique_lock<std::mutex> lock(mutex);
 		std::function<void()> action;
-		while (!solved)
+		while (true)
+		{
+			std::unique_lock<std::mutex> lock(mutex);
+			cv.wait(lock, []() {return solved || !tasks.empty(); });
+			if (solved)
 			{
-			if (tasks.empty())
-			{
-				cv.wait(lock, []() {return !tasks.empty(); });
+				break;
 			}
-			else
+			else if (!tasks.empty())
 			{
 				action = tasks.front();
 				tasks.pop();
-				lock.unlock();
-				action();
-				report_task_completion();
-				if (thread_count == 0)
-				{
-					break;
-				}
 			}
+			lock.unlock();
+
+			action();
+
+			report_task_completion();
 		}
 	}
 
@@ -43,7 +40,7 @@ namespace Utilities
 
 	void ThreadPool::report_task()
 	{
-		std::lock_guard<std::mutex> synchronise(mutex);
+		//std::lock_guard<std::mutex> synchronise(mutex);
 
 		tasks_reported++;
 	}
@@ -55,6 +52,9 @@ namespace Utilities
 
 			tasks_completed++;
 		}
+		std::cout << "tasks completed: " << tasks_completed << std::endl;
+		std::cout << "tasks reported: " << tasks_reported << std::endl;
+		std::cout << "tasks in queue: " << tasks.size() << std::endl;
 		cv.notify_all();
 	}
 
@@ -71,14 +71,16 @@ namespace Utilities
 
 	void ThreadPool::make_thread(std::function<void()> action)
 	{
-
-		std::lock_guard<std::mutex> synchronise(mutex);
-
-		tasks.push(action);
-		if (thread_count == 0)
 		{
-			std::thread thread(std::bind([](Action* p) {p->operator()(); }, new Action()));
-			thread.detach();
+			std::lock_guard<std::mutex> synchronise(mutex);
+
+			tasks.push(action);
+			report_task();
+			if (thread_count == 0)
+			{
+				std::thread thread(std::bind([](Action* p) {p->operator()(); }, new Action()));
+				thread.detach();
+			}
 		}
 		cv.notify_all();
 	}
@@ -86,12 +88,12 @@ namespace Utilities
 	void ThreadPool::wait_until_done()
 	{
 		std::unique_lock<std::mutex> lock(mutex);
-		cv.wait(lock, []() {return tasks_completed > 0 && tasks_completed == tasks_reported; });
+		cv.wait(lock, []() {return tasks_completed == tasks_reported; });
 
 		tasks_completed = 0;
 		tasks_reported = 0;
 
-		lock.release();
+		lock.unlock();
 	}
 
 	void ThreadPool::problem_solved()

@@ -21,10 +21,10 @@ namespace Alexandra
 
 				file.close();
 
-				for (auto p = nodes.begin(); p != nodes.end(); p++)
+				/*for (auto p = nodes.begin(); p != nodes.end(); p++)
 				{
-					std::cout << p->first << std::endl;
-				}
+					std::cout << p->second->node->me << std::endl;
+				}*/
 			}
 			else throw std::invalid_argument("invalid file format - header");
 		}
@@ -133,6 +133,8 @@ namespace Alexandra
 			add_node(node_index);
 
 			nodes[node_index]->set_node(new Graph::NVariable(node_index, &accumulator));
+		
+			std::cout << nodes[node_index]->node->me << std::endl;
 		}
 	}
 
@@ -174,9 +176,10 @@ namespace Alexandra
 			node_next_state = nodes[next_state];
 
 			Graph::NLatch* latch = new Graph::NLatch(node_index, next_state, node_next_state, &accumulator);
-			add_node(node_index);
 
-			nodes[next_state]->set_node(latch);
+			nodes[node_index]->set_node(latch);
+
+			std::cout << nodes[node_index]->node->me << std::endl;
 		}
 	}
 
@@ -257,7 +260,7 @@ namespace Alexandra
 
 	void Solver::ands()
 	{
-		for (int i = 1; i < number_of_ands; i++)
+		for (int i = 1; i <= number_of_ands; i++)
 		{
 			std::string line;
 			std::getline(file, line);
@@ -286,24 +289,26 @@ namespace Alexandra
 				throw std::invalid_argument("invalid file format");
 			}
 
-			if (!nodes.contains(node_index))
+			if (nodes[node_index] == NULL)
 			{
 				add_node(node_index);
 			}
 
-			if (!nodes.contains(right_fanin))
+			if (nodes[right_fanin] == NULL)
 			{
 				add_node(right_fanin);
 			}
 
-			if (!nodes.contains(left_fanin))
+			if (nodes[left_fanin] == NULL)
 			{
 				add_node(left_fanin);
 			}
 
-			Graph::Node* node = new Graph::NAnd(node_index, nodes.at(left_fanin), nodes.at(right_fanin));
+			Graph::NAnd* node = new Graph::NAnd(node_index, nodes[left_fanin], nodes[right_fanin]);
 
-			nodes.at(node_index)->set_node(node);
+			nodes[node_index]->set_node(node);
+
+			std::cout << nodes[node_index]->node->me << std::endl;
 		}
 	}
 
