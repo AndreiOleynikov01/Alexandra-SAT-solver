@@ -40,7 +40,6 @@ namespace Utilities
 
 	void ThreadPool::report_task()
 	{
-		//std::lock_guard<std::mutex> synchronise(mutex);
 
 		tasks_reported++;
 	}
@@ -61,6 +60,7 @@ namespace Utilities
 	void ThreadPool::initialise(int number_of_threads)
 	{
 		thread_count = number_of_threads;
+		std::cout << "number of thread: " << thread_count << std::endl;;
 
 		for (int i = 1; i <= thread_count; i++)
 		{

@@ -4,26 +4,43 @@ namespace Graph
 {
 	NLatch::NLatch(int me, int next_state, Node* next_state_function, Accumulator* accumulator) : Node(me), next_state(next_state), fanin(next_state_function), accumulator(accumulator) {}
 
-	void NLatch::propagate(Utilities::Stack sat_trace, int last_node)
+	void NLatch::propagate(Utilities::Stack sat_trace, Utilities::Stack latch_trace)
 	{
 
-		std::cout << "propagating: " << me << " from " << last_node << std::endl;
-		if (last_node < next_state)
+		std::cout << me << " " << next_state << " " << fanin << std::endl;
+		bool visited = false;
+		Utilities::Stack::Entry* iterator = latch_trace.top_entry();
+
+		while (iterator != NULL)
 		{
-			if ((last_node == me + 1))
+			if (iterator->value == me)
+			{
+				visited = true;
+				break;
+			}
+			else
+			{
+				iterator = iterator->prev;
+			}
+		}
+
+		if (visited)
+		{
+			if ((sat_trace.top() == me + 1))
 			{
 				sat_trace.pop();
-				accumulator->accumulate(sat_trace, 0, false);
+				accumulator->accumulate(sat_trace, 0, true);
 			}
 			else
 			{
 
-				accumulator->accumulate(sat_trace, 0, true);
+				accumulator->accumulate(sat_trace, 0, false);
 			}
 		}
 		else
 		{
-			fanin->propagate(sat_trace, me);
+			latch_trace.push(me);
+			fanin->propagate(sat_trace, latch_trace);
 		}
 	}
 }

@@ -8,9 +8,10 @@ namespace Graph
 	void StartPoint::start()
 	{
 		Utilities::Stack sat_trace;
+		Utilities::Stack latch_trace;
 		if (size == 1)
 		{
-			Utilities::ThreadPool::make_thread(Propagate(sat_trace, 0, fanins[0]));
+			Utilities::ThreadPool::make_thread(Propagate(sat_trace, latch_trace, fanins[0]));
 		}
 		else
 		{
@@ -18,7 +19,7 @@ namespace Graph
 			{
 				Utilities::Stack sub_trace(sat_trace);
 				sub_trace.push(-(i + 1));
-				Utilities::ThreadPool::make_thread(Propagate(sub_trace, 0, fanins[i]));
+				Utilities::ThreadPool::make_thread(Propagate(sub_trace, latch_trace, fanins[i]));
 			}
 		}
 		Utilities::ThreadPool::wait_until_done();

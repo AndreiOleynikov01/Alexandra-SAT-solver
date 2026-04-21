@@ -4,11 +4,10 @@ namespace Graph
 {
 	NNot::NNot(int me, Node* fanin) : Node(me), fanin(fanin) {}
 
-	void NNot::propagate(Utilities::Stack sat_trace, int last_node)
+	void NNot::propagate(Utilities::Stack sat_trace, Utilities::Stack latch_trace)
 	{
-
-		std::cout << "propagating: " << me << " from " << last_node << std::endl;
+		std::cout << me << " NOT " << fanin << std::endl;
 		sat_trace.push(me);
-		fanin->propagate(sat_trace, me);
+		fanin->propagate(sat_trace, latch_trace);
 	}
 }

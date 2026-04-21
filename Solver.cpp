@@ -21,10 +21,6 @@ namespace Alexandra
 
 				file.close();
 
-				/*for (auto p = nodes.begin(); p != nodes.end(); p++)
-				{
-					std::cout << p->second->node->me << std::endl;
-				}*/
 			}
 			else throw std::invalid_argument("invalid file format - header");
 		}
@@ -98,11 +94,18 @@ namespace Alexandra
 		{
 			if (node_index % 2)
 			{
-				Graph::NNot* not_node = new Graph::NNot(node_index, vertice);
-				Graph::NodeHandler* not_vertice = new Graph::NodeHandler(not_node);
+				if (!nodes.contains(node_index-1))
+				{
+					add_node(node_index - 1);
+				}
 
-				nodes[node_index] = not_vertice;
-				nodes[node_index - 1] =  vertice;
+
+				Graph::NNot* not_node = new Graph::NNot(node_index, nodes[node_index-1]);
+				vertice->set_node(not_node);
+
+				nodes[node_index] = vertice;
+
+				std::cout << nodes[node_index]->node->me << std::endl;
 			}
 			else
 			{
@@ -110,7 +113,6 @@ namespace Alexandra
 				nodes[node_index] =  vertice;
 			}
 		}
-		
 	}
 
 	void Solver::inputs()
@@ -119,6 +121,7 @@ namespace Alexandra
 		{
 			std::string line;
 			std::getline(file, line);
+			std::cout << "line :" << line << std::endl;
 			int node_index;
 
 			try
@@ -144,6 +147,7 @@ namespace Alexandra
 		{
 			std::string line;
 			std::getline(file, line);
+			std::cout << "line :" << line << std::endl;
 			std::stringstream stream(line);
 
 			int node_index;
@@ -193,6 +197,7 @@ namespace Alexandra
 			{
 				std::string line;
 				std::getline(file, line);
+				std::cout << "line :" << line << std::endl;
 				int index;
 
 				try 
@@ -264,6 +269,7 @@ namespace Alexandra
 		{
 			std::string line;
 			std::getline(file, line);
+			std::cout << "line :" << line << std::endl;
 			std::stringstream stream(line);
 
 			std::string node_token;

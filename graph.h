@@ -141,7 +141,7 @@ namespace Graph
 	class Node
 	{
 	public:
-		void virtual propagate(Utilities::Stack, int);
+		void virtual propagate(Utilities::Stack, Utilities::Stack);
 
 		Node(int);
 		
@@ -152,7 +152,7 @@ namespace Graph
 	{
 		Accumulator* accumulator;
 	public:
-		void propagate(Utilities::Stack, int); 
+		void propagate(Utilities::Stack, Utilities::Stack);
 
 		NVariable(int, Accumulator*);
 	};
@@ -162,7 +162,7 @@ namespace Graph
 		Node* left;
 		Node* right;
 	public:
-		void propagate(Utilities::Stack, int);
+		void propagate(Utilities::Stack, Utilities::Stack);
 
 		NAnd(int, Node*, Node*);
 	};
@@ -171,7 +171,7 @@ namespace Graph
 	{
 		Node* fanin;
 	public:
-		void propagate(Utilities::Stack, int);
+		void propagate(Utilities::Stack, Utilities::Stack);
 
 		NNot(int, Node*);
 	};
@@ -182,7 +182,7 @@ namespace Graph
 		const int next_state;
 		Accumulator* accumulator;
 	public:
-		void propagate(Utilities::Stack, int);
+		void propagate(Utilities::Stack, Utilities::Stack);
 
 		NLatch(int, int, Node*, Accumulator*);
 	};
@@ -191,7 +191,7 @@ namespace Graph
 	{
 		Accumulator* accumulator;
 	public:
-		void propagate(Utilities::Stack, int);
+		void propagate(Utilities::Stack, Utilities::Stack);
 
 		NTrue(Accumulator*);
 	};
@@ -200,7 +200,7 @@ namespace Graph
 	{
 		Accumulator* accumulator;
 	public:
-		void propagate(Utilities::Stack, int);
+		void propagate(Utilities::Stack, Utilities::Stack);
 
 		NFalse(Accumulator*);
 	};
@@ -210,7 +210,7 @@ namespace Graph
 	public:
 		Node* node;
 	
-		void propagate(Utilities::Stack, int);
+		void propagate(Utilities::Stack, Utilities::Stack);
 
 		NodeHandler();
 
@@ -222,11 +222,11 @@ namespace Graph
 	class Propagate
 	{
 		Utilities::Stack sat_trace;
-		int last_node;
+		Utilities::Stack latch_trace;
 		Node* target;
 
 	public:
-		Propagate(Utilities::Stack, int, Node*);
+		Propagate(Utilities::Stack, Utilities::Stack, Node*);
 
 		void operator()();
 	};

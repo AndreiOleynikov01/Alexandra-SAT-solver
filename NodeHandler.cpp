@@ -6,11 +6,11 @@ namespace Graph
 
 	NodeHandler::NodeHandler(Node* node) : Node(0), node(node) {}
 
-	void NodeHandler::propagate(Utilities::Stack sat_trace, int last_node)
+	void NodeHandler::propagate(Utilities::Stack sat_trace, Utilities::Stack latch_trace)
 	{
 		if (node != NULL)
 		{
-			node->propagate(sat_trace, last_node);
+			node->propagate(sat_trace, latch_trace);
 		}
 		else
 		{
