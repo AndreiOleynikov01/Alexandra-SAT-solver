@@ -90,12 +90,19 @@ namespace Graph
 			std::mutex mutex;
 			bool master;
 			std::vector<IPulse*> signals;
-			std::vector<AccNode*> nodes;
+			IPulse* intermidiate_value;
+			AccNode* next_node;
+			int child_nodes;
+			int fold_count;
 
-			AccNode(bool);
+			AccNode();
+			void add_child();
+			void set_master();
+			void ripe(IPulse&);
 			void add_pulse(UnitPulse*);
 			void add_node(AccNode*);
-			IPulse* fold();
+			void fold();
+			IPulse& get_result();
 		};
 
 		Utilities::Stack::Entry* master_pointer;
@@ -110,29 +117,11 @@ namespace Graph
 		IPulse* solve();
 		IPulse* solve(std::map<int, bool>&);
 
-		class Add
-		{
-			std::mutex mutex;
-			std::condition_variable cv;
-			const int number_of_operands;
-			std::vector<IPulse*> operands;
-			IPulse** result_buffer;
-			Add* adder;
-
-		public:
-			Add(int, Add* = NULL, IPulse* = NULL);
-
-			void add_operand(IPulse*);
-
-			void operator()();
-		};
-
 		static  class Fold
 		{
-			Add* adder;
 			AccNode* node;
 		public:
-			Fold(Add*, AccNode*);
+			Fold(AccNode*);
 
 			void operator()();
 		};

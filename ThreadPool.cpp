@@ -92,7 +92,7 @@ namespace Utilities
 
 		tasks_completed = 0;
 		tasks_reported = 0;
-
+		std::cout << "done" << std::endl;
 		lock.unlock();
 	}
 

@@ -2,86 +2,57 @@
 
 namespace Graph
 {
-	Accumulator::AccNode::AccNode(bool is_master) : master(is_master), signals(), nodes(){}
+	Accumulator::AccNode::AccNode() : master(false), signals(), next_node(NULL), child_nodes(0), fold_count(0), intermidiate_value(){}
+
+	void Accumulator::AccNode::add_child() 
+	{
+		child_nodes++;
+	}
+	void Accumulator::AccNode::set_master()
+	{
+		master = true;
+	}
+
+	void Accumulator::AccNode::ripe(IPulse& pulse)
+	{
+		bool is_ripe;
+		{
+			std::lock_guard<std::mutex> synchronise(mutex);
+
+			if (intermidiate_value == NULL)
+			{
+				intermidiate_value = new Pulse(!master, signals);
+			}
+
+			intermidiate_value = *intermidiate_value + pulse;
+			fold_count++;
+			is_ripe = fold_count == child_nodes;
+		}
+		
+		if (is_ripe)
+		{
+			Utilities::ThreadPool::make_thread(Fold(next_node));
+		}
+	}
 
 	void Accumulator::AccNode::add_pulse(UnitPulse* signal) 
 	{
 		std::lock_guard<std::mutex> synchronise(mutex);
 
-		if (signal->value == CONFLICT)
-		{
-			signals.erase(signals.begin(), signals.end());
-			signals.push_back(signal);
-		}
-		else if (signal->variable == 0 && signal->value == TRUE)
-		{
-			if (master)
-			{
-				signals.erase(signals.begin(), signals.end());
-				signals.push_back(new UnitPulse(CONFLICT, 0));
-			}
-		}
-		else
-		{
-			if (signals.empty())
-			{
-				signals.push_back(signal);
-			}
-			else
-			{
-				for (IPulse* s : signals)
-				{
-					bool duplicate = false;
-					if ((dynamic_cast<Graph::UnitPulse*>(s)->variable == signal->variable && dynamic_cast<Graph::UnitPulse*>(s)->value == signal->value)|| dynamic_cast<Graph::UnitPulse*>(s)->value != CONFLICT)
-					{
-						duplicate = true;
-					}
-					if (duplicate)
-					{
-						signals.push_back(signal);
-					}
-				}
-			}
-		}
+		
 	}
 
 	void Accumulator::AccNode::add_node(AccNode* node)
 	{
-		std::lock_guard<std::mutex> synchronise(mutex);
-
-		nodes.push_back(node);
+		next_node = node;
 	}
 
-	IPulse* Accumulator::AccNode::fold()
+	void Accumulator::AccNode::fold()
 	{
 		std::cout << "starting folding at master: " << master<< std::endl;
 		std::lock_guard<std::mutex> synchronise(mutex);
 
-		if (nodes.empty())
-		{
-			std::cout << "nothing to return" << std::endl;
-			if (signals.size() == 1)
-			{
-				return signals.front();
-			}
-			else
-			{
-				return new Pulse(!master, signals);
-			}
-		}
-		else
-		{
-			IPulse* result = NULL;
-			Add* new_adder = new Add(signals.size() + 1, NULL, result);
-			for (AccNode* n : nodes)
-			{
-				Utilities::ThreadPool::make_thread(Fold(new_adder, n));
-			}
-			new_adder->add_operand(new Pulse(master, signals));
-			Utilities::ThreadPool::make_thread(std::bind([](Add* p) {p->operator()(); }, new_adder));
-			Utilities::ThreadPool::wait_until_done();
-			return result;
-		}
+		
 	}
 
 	Accumulator::Accumulator() : mutex(), accNodes(), master_pointer(NULL) {}
@@ -106,44 +77,12 @@ namespace Graph
 
 	void Accumulator::accumulate(Utilities::Stack sat_trace, int variable, bool state) 
 	{
-		AccNode* prev_node = NULL;
-		while (!sat_trace.empty())
-		{
-			AccNode* node;
-			Utilities::Stack::Entry* current_not = sat_trace.pop();
-			if (prev_node == NULL)
-			{
-				node = get_node(current_not);
-				if (node == NULL)
-				{
-					node = new AccNode(current_not->value == 0);
-					add_node(current_not, node);
-				}
-
-				
-				node->add_pulse(new UnitPulse((state)?(TRUE):(FALSE), variable));
-			}
-			else
-			{
-				node = get_node(current_not);
-				if (node == NULL)
-				{
-					node = new AccNode(current_not->value == 0);
-					add_node(current_not, node);
-					node->add_node(prev_node);
-				}
-			}
-			prev_node = node;
-			if (master_pointer == NULL && current_not->value == 0)
-			{
-				master_pointer = current_not;
-			}
-		}
+		
 	}
 
 	IPulse* Accumulator::solve()
 	{
-		return get_node(master_pointer)->fold();
+		
 	}
 
 	IPulse* Accumulator::solve(std::map<int, bool>& assumption) 
@@ -156,80 +95,11 @@ namespace Graph
 		return (*solve() + *(new Pulse(false, buffer)));
 	}
 
-	Accumulator::Add::Add(int size, Add* prev, IPulse* result) : mutex(), cv(), number_of_operands(size), adder(prev), result_buffer(&result), operands() {}
 
-	void Accumulator::Add::add_operand(IPulse* pulse)
-	{
-		std::lock_guard<std::mutex> synchronise(mutex);
-
-		operands.push_back(pulse);
-	}
-
-	void Accumulator::Add::operator()()
-	{
-		std::unique_lock<std::mutex> lock(mutex);
-
-		if (operands.size() < number_of_operands)
-		{
-			if (Utilities::ThreadPool::thread_count > 0)
-			{
-				lock.unlock();
-				Utilities::ThreadPool::make_thread(std::bind([](Add* p) {p->operator()(); }, this));
-				return;
-			}
-			else
-			{
-				struct Wait
-				{
-					const int size;
-					std::vector<IPulse*>& vec;
-					Wait(int size, std::vector<IPulse*>& vec) : size(size), vec(vec){}
-					bool operator()()
-					{
-						return size == vec.size();
-					}
-				};
-				
-				cv.wait(lock, Wait(number_of_operands, operands));
-			}
-		}
-			IPulse* garbage = NULL;
-			IPulse* result = NULL;
-			for (IPulse* p : operands)
-			{
-				if (result == NULL)
-				{
-					result = p;
-				}
-				else
-				{
-					IPulse* intermideate = *p + *result;
-					delete garbage;
-					result = intermideate;
-					garbage = intermideate;
-				}
-			}
-			lock.unlock();
-			*result_buffer = result;
-	}
-
-	Accumulator::Fold::Fold(Add* adder, AccNode* node) : adder(adder), node(node){}
+	Accumulator::Fold::Fold(AccNode* node) : node(node){}
 
 	void Accumulator::Fold::operator()()
 	{
-		if (node->nodes.empty())
-		{
-			adder->add_operand(new Pulse(node->master, node->signals));
-		}
-		else
-		{
-			Add* new_adder = new Add(node->signals.size() + 1, adder);
-			for (AccNode* n : node->nodes)
-			{
-				Utilities::ThreadPool::make_thread(Fold(new_adder, n));
-			}
-			new_adder->add_operand(new Pulse(node->master, node->signals));
-			Utilities::ThreadPool::make_thread(std::bind([](Add* p) {p->operator()(); }, new_adder));
-		}
+		node->fold();
 	}
 }

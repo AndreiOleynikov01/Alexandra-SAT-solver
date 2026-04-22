@@ -138,6 +138,13 @@ namespace Graph
 		}
 		else
 		{
+			if (pulse != *this)
+			{
+				std::vector<IPulse*> buffer;
+				buffer.push_back(&pulse);
+				buffer.push_back(this);
+				return new Graph::Pulse(false, buffer);
+			}
 			AggregatedPulse* result = new AggregatedPulse();
 			std::vector<std::vector<IUnit>> left_buffer, right_buffer;
 			std::vector<IUnit> left_padding, right_padding;
