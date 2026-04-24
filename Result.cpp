@@ -6,6 +6,6 @@ namespace Alexandra
 
 	Result::operator std::string()
 	{
-		return value->print();
+		return "the result: "+ value->print();
 	}
 }

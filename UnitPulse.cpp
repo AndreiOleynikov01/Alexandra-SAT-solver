@@ -87,7 +87,24 @@ namespace Graph
 
 	std::string UnitPulse::print()
 	{
-		return this->variable + " = " + this->value;
+		std::string result = "";
+		result += std::to_string(variable);
+		result += " = ";
+		switch (value)
+		{
+		case TRUE:
+			result += "TRUE";
+			break;
+		case FALSE:
+			result += "FALSE";
+			break;
+		case CONFLICT:
+			result += "CONFLICT";
+			break;
+		case ANY:
+			result += "ANY";
+		}
+		return result;
 	}
 
 	bool UnitPulse::isNegative() { return this->value == FALSE; }

@@ -131,7 +131,7 @@ namespace Graph
 							IPulse* intermidiate = (*lp + *rp);
 							if (*intermidiate == Graph::UnitPulse(CONFLICT, 0))
 							{
-								delete intermidiate;
+								//delete intermidiate;
 								return new Graph::AggregatedPulse(*this, *ppulse);
 							}
 							else
@@ -211,7 +211,7 @@ namespace Graph
 							{
 								pulse_buffer.pop_back();
 								pulse_buffer.push_back(*second_pointer_buffer[j] + *temp);
-								delete temp;
+								//delete temp;
 								second_pointer_buffer[j] = NULL;
 							}
 						}
@@ -297,13 +297,13 @@ namespace Graph
 						{
 							intermediate_buffer.push_back(lp);
 							satisfied = true;
-							delete intermidiate_pulse;
+							//delete intermidiate_pulse;
 						}
 						else
 						{
 							intermediate_buffer.push_back(intermidiate_pulse);
 						}
-						delete equivalent_pulse;
+						//delete equivalent_pulse;
 					}
 					else
 					{
@@ -332,7 +332,7 @@ namespace Graph
 						if (satisfied)
 						{
 							intermediate_buffer.push_back(remaining->open());
-							delete remaining;
+							//delete remaining;
 						}
 						else
 						{

@@ -102,7 +102,7 @@ namespace Graph
 			void add_pulse(UnitPulse*);
 			void add_node(AccNode*);
 			void fold();
-			IPulse& get_result();
+			IPulse* get_result();
 		};
 
 		Utilities::Stack::Entry* master_pointer;

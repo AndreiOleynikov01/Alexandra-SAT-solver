@@ -32,7 +32,7 @@ namespace Graph
 			}
 			for (IPulse* rp : right_buffer)
 			{
-				int rv = dynamic_cast<Graph::UnitPulse*>(&right)->variable;
+				int rv = dynamic_cast<Graph::UnitPulse*>(rp)->variable;
 				bool common = false;
 				for (int lv : common_variables)
 				{
@@ -121,7 +121,7 @@ namespace Graph
 					else
 					{
 						result = *prev + exclusion_pulse;
-						delete prev;
+						//delete prev;
 					}
 
 					if (*result == Graph::UnitPulse(CONFLICT, 0))
