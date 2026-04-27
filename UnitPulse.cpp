@@ -107,5 +107,5 @@ namespace Graph
 		return result;
 	}
 
-	bool UnitPulse::isNegative() { return this->value == FALSE; }
+	bool UnitPulse::isNegative() { return false; }
 }

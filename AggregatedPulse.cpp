@@ -2,9 +2,9 @@
 
 namespace Graph
 {
-	AggregatedPulse::AggregatedPulse(bool negative) : IPulse(PulseType::AggregatedPulse), negative(negative), exclusionSet(), definitiveSet() {}
+	AggregatedPulse::AggregatedPulse() : IPulse(PulseType::AggregatedPulse), exclusionSet(), definitiveSet(), size(0) {}
 
-	AggregatedPulse::AggregatedPulse(Graph::Pulse& left, Graph::Pulse& right) : IPulse(PulseType::AggregatedPulse), negative(false), exclusionSet(), definitiveSet()
+	AggregatedPulse::AggregatedPulse(Graph::Pulse& left, Graph::Pulse& right) : IPulse(PulseType::AggregatedPulse), exclusionSet(), definitiveSet(), size(0)
 	{
 		if (left.isNegative() && right.isNegative())
 		{
@@ -102,49 +102,57 @@ namespace Graph
 				buffer.push_back(this);
 				return new Graph::Pulse(false, buffer);
 			}
-			else
-			{
-				IPulse* prev = NULL;
-				IPulse* result = NULL;
-				for (std::vector<IUnit> exclude : exclusionSet)
-				{
-					std::vector<IPulse*> buffer;
-					for (IUnit variable : exclude)
-					{
-						buffer.push_back(new Graph::UnitPulse(variable.value, variable.variable));
-					}
-					Graph::Pulse exclusion_pulse = Graph::Pulse(true, buffer);
-					if (prev == NULL)
-					{
-						result = pulse + exclusion_pulse;
-					}
-					else
-					{
-						result = *prev + exclusion_pulse;
-						//delete prev;
-					}
 
-					if (*result == Graph::UnitPulse(CONFLICT, 0))
-					{
-						return result;
-					}
-					else
-					{
-						prev = result;
-					}
+			IPulse* prev = NULL;
+			IPulse* result = NULL;
+			for (std::vector<IUnit> exclude : exclusionSet)
+			{
+				std::vector<IPulse*> buffer;
+				for (IUnit variable : exclude)
+				{
+					buffer.push_back(new Graph::UnitPulse(variable.value, variable.variable));
 				}
-				return result;
+				Graph::Pulse exclusion_pulse = Graph::Pulse(true, buffer);
+				if (prev == NULL)
+				{
+					result = pulse + exclusion_pulse;
+				}
+				else
+				{
+					result = *prev + exclusion_pulse;
+					//delete prev;
+				}
+
+				if (*result == Graph::UnitPulse(CONFLICT, 0))
+				{
+					return result;
+				}
+				else
+				{
+					prev = result;
+				}
 			}
+			return result;
 		}
 		else
 		{
 			if (pulse != *this)
 			{
-				std::vector<IPulse*> buffer;
-				buffer.push_back(&pulse);
-				buffer.push_back(this);
-				return new Graph::Pulse(false, buffer);
+				if (pulse.type == PulseType::AggregatedPulse)
+				{
+					std::vector<IPulse*> buffer;
+					buffer.push_back(&pulse);
+					buffer.push_back(this);
+					return new Graph::Pulse(false, buffer);
+				}
+				else
+				{
+					std::vector<IPulse*> buffer = pulse.getvalues();
+					buffer.push_back(this);
+					return new Graph::Pulse(false, buffer);
+				}
 			}
+
 			AggregatedPulse* result = new AggregatedPulse();
 			std::vector<std::vector<IUnit>> left_buffer, right_buffer;
 			std::vector<IUnit> left_padding, right_padding;
@@ -297,7 +305,7 @@ namespace Graph
 
 	bool AggregatedPulse::isNegative() 
 	{
-		return negative;
+		return true;
 	}
 
 }
