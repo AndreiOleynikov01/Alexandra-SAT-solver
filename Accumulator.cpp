@@ -49,10 +49,10 @@ namespace Graph
 			for (IPulse* s : signals)
 			{
 				UnitPulse* up = dynamic_cast<UnitPulse*>(s);
-				if ((up->value == CONFLICT) || (up ->variable == signal->variable && up->value == signal->value))
+				if ((up->value == CONFLICT) || (up->variable == signal->variable && up->value == signal->value))
 				{
 					ignore = true;
-				} 
+				}
 				else if (up->variable == signal->variable && up->value != signal->value)
 				{
 					signals.erase(signals.begin());
@@ -61,7 +61,7 @@ namespace Graph
 				}
 			}
 		}
-		else 
+		else
 		{
 			if (!master)
 			{
@@ -98,7 +98,7 @@ namespace Graph
 		{
 			std::cout << "starting folding at master: " << master << std::endl;
 			std::lock_guard<std::mutex> synchronise(mutex);
-			
+
 			if (intermidiate_value == NULL)
 			{
 				if (signals.size() == 1)
@@ -127,10 +127,10 @@ namespace Graph
 
 	Accumulator::Accumulator() : mutex(), accNodes(), master_pointer(NULL) {}
 
-	Accumulator::AccNode* Accumulator::get_node(Utilities::Stack::Entry* id) 
+	Accumulator::AccNode* Accumulator::get_node(Utilities::Stack::Entry* id)
 	{
 		std::lock_guard<std::mutex> synchronise(mutex);
-		
+
 		if (accNodes.contains(id))
 		{
 			return accNodes[id];
@@ -138,7 +138,7 @@ namespace Graph
 		return NULL;
 	}
 
-	void Accumulator::add_node(Utilities::Stack::Entry* id, Accumulator::AccNode* node) 
+	void Accumulator::add_node(Utilities::Stack::Entry* id, Accumulator::AccNode* node)
 	{
 		std::lock_guard<std::mutex> synchronise(mutex);
 
@@ -151,7 +151,7 @@ namespace Graph
 		accNodes[id] = node;
 	}
 
-	void Accumulator::accumulate(Utilities::Stack sat_trace, int variable, bool state) 
+	void Accumulator::accumulate(Utilities::Stack sat_trace, int variable, bool state)
 	{
 		UnitPulse* signal = new UnitPulse((state) ? (TRUE) : (FALSE), variable);
 
@@ -211,7 +211,7 @@ namespace Graph
 		return accNodes[master_pointer]->get_result();
 	}
 
-	IPulse* Accumulator::solve(std::map<int, bool>& assumption) 
+	IPulse* Accumulator::solve(std::map<int, bool>& assumption)
 	{
 		std::vector<IPulse*> buffer;
 		for (auto iter = assumption.begin(); iter != assumption.end(); iter++)
@@ -222,7 +222,7 @@ namespace Graph
 	}
 
 
-	Accumulator::Fold::Fold(AccNode* node) : node(node){}
+	Accumulator::Fold::Fold(AccNode* node) : node(node) {}
 
 	void Accumulator::Fold::operator()()
 	{

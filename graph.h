@@ -27,8 +27,8 @@ namespace Graph
 
 		IPulse(PulseType);
 
-		virtual IPulse* operator+(IPulse&) ;
-		virtual bool operator==(IPulse&) ;
+		virtual IPulse* operator+(IPulse&);
+		virtual bool operator==(IPulse&);
 		virtual IPulse* open();
 		virtual std::vector <IPulse*> getvalues();
 		virtual std::vector<IUnit> getVariables();
@@ -40,9 +40,9 @@ namespace Graph
 	{
 	public:
 		UnitPulse(State, int);
-		IPulse* operator+(IPulse&) ;
+		IPulse* operator+(IPulse&);
 		IPulse* open();
-		bool operator==(IPulse&) ;
+		bool operator==(IPulse&);
 		std::vector <IPulse*> getvalues();
 		std::vector<IUnit> getVariables();
 		std::string print();
@@ -74,7 +74,7 @@ namespace Graph
 		AggregatedPulse();
 		AggregatedPulse(Graph::Pulse&, Graph::Pulse&);
 		IPulse* open();
-		IPulse* operator+(IPulse&) ;
+		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
 		std::vector <IPulse*> getvalues();
 		std::vector<IUnit> getVariables();
@@ -132,7 +132,7 @@ namespace Graph
 		void virtual propagate(Utilities::Stack, Utilities::Stack);
 
 		Node(int);
-		
+
 		const int me;
 	};
 
@@ -197,7 +197,7 @@ namespace Graph
 	{
 	public:
 		Node* node;
-	
+
 		void propagate(Utilities::Stack, Utilities::Stack);
 
 		NodeHandler();

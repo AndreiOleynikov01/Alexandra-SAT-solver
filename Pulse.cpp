@@ -2,7 +2,7 @@
 
 namespace Graph
 {
-	bool Pulse::operator==(IPulse& pulse) 
+	bool Pulse::operator==(IPulse& pulse)
 	{
 		std::vector<IUnit> target_variables = pulse.getVariables();
 		std::vector<IUnit> variables = getVariables();
@@ -24,7 +24,7 @@ namespace Graph
 		switch (pulse.type)
 		{
 		case PulseType::AggregatedPulse:
-			return pulse + * this;
+			return pulse + *this;
 		case PulseType::UnitPulse:
 		{
 			std::vector<IPulse*> old_buffer, new_buffer;
@@ -268,7 +268,7 @@ namespace Graph
 					new_buffer.push_back(&pulse);
 					return new Pulse(false, new_buffer);
 				}
-				
+
 				bool satisfied = false;
 				std::vector<IPulse*> intermediate_buffer, new_buffer;
 				for (IPulse* lp : pulses)
@@ -367,7 +367,7 @@ namespace Graph
 
 	Pulse::Pulse(bool negative) : IPulse(PulseType::Pulse), negative(negative), pulses() {}
 
-	Pulse::Pulse(bool negative, std::vector<IPulse*> pulses) : IPulse(PulseType::Pulse), negative(negative), pulses(pulses){}
+	Pulse::Pulse(bool negative, std::vector<IPulse*> pulses) : IPulse(PulseType::Pulse), negative(negative), pulses(pulses) {}
 
 	IPulse* Pulse::open()
 	{
@@ -378,8 +378,8 @@ namespace Graph
 		}
 		return new Pulse(false, result);
 	}
-	
-	std::vector <IPulse*> Pulse::getvalues() 
+
+	std::vector <IPulse*> Pulse::getvalues()
 	{
 		return pulses;
 	}
@@ -397,8 +397,8 @@ namespace Graph
 		}
 		return vec;
 	}
-	
-	std::string Pulse::print() 
+
+	std::string Pulse::print()
 	{
 		std::string result;
 		if (negative)
@@ -406,10 +406,10 @@ namespace Graph
 			result = "Not (";
 		}
 
-		for (int i = 0; i< pulses.size(); i++)
+		for (int i = 0; i < pulses.size(); i++)
 		{
 			result += pulses.at(i)->print();
-			
+
 			if (i < pulses.size() - 1)
 			{
 				result += ", ";
@@ -424,7 +424,7 @@ namespace Graph
 		return result;
 	}
 
-	bool Pulse::isNegative() 
+	bool Pulse::isNegative()
 	{
 		return negative;
 	}

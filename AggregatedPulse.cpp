@@ -37,7 +37,7 @@ namespace Graph
 				for (int lv : common_variables)
 				{
 					if (lv == rv)
-					{ 
+					{
 						common = true;
 					}
 				}
@@ -71,7 +71,7 @@ namespace Graph
 		}
 	}
 
-	bool AggregatedPulse::operator==(IPulse& pulse) 
+	bool AggregatedPulse::operator==(IPulse& pulse)
 	{
 		std::vector<IUnit> target_variables = pulse.getVariables();
 		std::vector<IUnit> variables = getVariables();
@@ -245,7 +245,7 @@ namespace Graph
 		}
 	}
 
-	std::vector <IPulse*> AggregatedPulse::getvalues() 
+	std::vector <IPulse*> AggregatedPulse::getvalues()
 	{
 		std::vector<IPulse*> result;
 		for (std::vector<IUnit> exclude : exclusionSet)
@@ -260,7 +260,7 @@ namespace Graph
 		return result;
 	}
 
-	std::vector<IUnit> AggregatedPulse::getVariables() 
+	std::vector<IUnit> AggregatedPulse::getVariables()
 	{
 		std::vector<IUnit> vec;
 
@@ -280,7 +280,7 @@ namespace Graph
 		return new Graph::Pulse(false, definitiveSet);
 	}
 
-	std::string AggregatedPulse::print() 
+	std::string AggregatedPulse::print()
 	{
 		std::string result;
 		result += "Not { ";
@@ -303,7 +303,7 @@ namespace Graph
 		return result;
 	}
 
-	bool AggregatedPulse::isNegative() 
+	bool AggregatedPulse::isNegative()
 	{
 		return true;
 	}
