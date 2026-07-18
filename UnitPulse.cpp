@@ -15,42 +15,7 @@ namespace Graph
 
 	IPulse* UnitPulse::operator+(IPulse& pulse)
 	{
-		switch (pulse.type)
-		{
-		case PulseType::UnitPulse:
-		{
-			UnitPulse* upulse = dynamic_cast<Graph::UnitPulse*>(&pulse);
-			if (variable != upulse->variable)
-			{
-				if (upulse->value != State::CONFLICT)
-				{
-					std::vector<IPulse*> pulses;
-					pulses.push_back(this);
-					pulses.push_back(&pulse);
-					return new Graph::Pulse(false, pulses);
-				}
-				else
-				{
-					return &pulse;
-				}
-
-			}
-			else if (value == upulse->value || upulse->value == State::ANY)
-			{
-				return this;
-			}
-			else if (value == State::ANY)
-			{
-				return &pulse;
-			}
-			else
-			{
-				return new UnitPulse(CONFLICT, 0);
-			}
-		}
-		default:
-			return pulse + *this;
-		}
+		
 	}
 
 	IPulse* UnitPulse::open() 
