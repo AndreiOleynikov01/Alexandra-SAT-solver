@@ -21,18 +21,22 @@ namespace Graph
 
 	IPulse* Pulse::operator+(IPulse& pulse)
 	{
+		std::vector<Graph::UnitPulse*> unit_buffer;
+		std::vector<Graph::IPulse*> pulse_buffer;
+
 		switch (pulse.type)
 		{
 			case PulseType::UnitPulse:
 			{
 				Graph::UnitPulse& unit_pulse = dynamic_cast<Graph::UnitPulse&>(pulse);
-				std::vector<Graph::UnitPulse*> unit_buffer;
-				std::vector<Graph::IPulse*> pulse_buffer;
 
 				if (unit_pulse.value == CONFLICT)
 				{
 					return &pulse;
 				}
+
+				bool satisfied = false;
+				bool present = false;
 
 				for (Graph::UnitPulse* u : units)
 				{
@@ -42,22 +46,79 @@ namespace Graph
 					}
 					else
 					{
+						present = true;
+
 						if (u->value == unit_pulse.value || u->value ==ANY)
 						{
 							if (!negative)
 							{
-								unit_buffer.push_back(&unit_pulse);
+								unit_buffer.push_back(u);
 							}
 						}
 						else
+						{
+							if (!negative)
+							{
+								return new Graph::UnitPulse(CONFLICT, 0);
+							}
+							else
+							{
+								satisfied = true;
+							}
+						}
 					}
 				}
 
-				break;
+				if (!present)
+				{
+					unit_buffer.push_back(&unit_pulse);
+				}
+
+				for (IPulse* p : pulses)
+				{
+					if (!p->operator==(pulse))
+					{
+						pulse_buffer.push_back(p);
+					}
+					else
+					{
+						IPulse* intermidiate = p->operator+(unit_pulse);
+						if (intermidiate->type == PulseType::Pulse && !intermidiate->isNegative())
+						{
+							pulse_buffer.push_back(intermidiate->open());
+							delete intermidiate;
+						}
+						else
+						{
+							pulse_buffer.push_back(intermidiate);
+						}
+					}
+				}
+
+				return new Pulse(negative, pulse_buffer, unit_buffer);
 			}
 			case PulseType::Pulse:
 			{
 				Graph::Pulse& plain_pulse = dynamic_cast<Graph::Pulse&>(pulse);
+
+				std::vector<Graph::UnitPulse*> left_unit_buffer;
+				std::vector<Graph::IPulse*> left_pulse_buffer;
+
+				if (plain_pulse.isNegative() == negative)
+				{
+					left_unit_buffer = plain_pulse.getUnits();
+					left_pulse_buffer = plain_pulse.getPulses();
+				}
+				else if(plain_pulse.isNegative())
+				{
+					left_pulse_buffer.push_back(&plain_pulse);
+				}
+				else
+				{
+					return plain_pulse + *this;
+				}
+
+
 
 				break;
 			}
