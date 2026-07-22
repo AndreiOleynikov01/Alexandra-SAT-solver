@@ -77,12 +77,15 @@ namespace Graph
 	}
 
 
-	std::vector <IPulse*> UnitPulse::getvalues()
-	{
-		std::vector<IPulse*> vec;
-		vec.push_back(this);
-		return vec;
+
+	std::vector <Graph::UnitPulse*> UnitPulse::getUnits() 
+	{ 
+		std::vector<UnitPulse*> result = std::vector<UnitPulse*>();
+		result.push_back(this);
+		return result; 
 	}
+
+	std::vector <Graph::IPulse*> UnitPulse::getPulses() { return std::vector<IPulse*>(); }
 
 	std::string UnitPulse::print()
 	{

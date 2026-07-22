@@ -93,20 +93,9 @@ namespace Graph
 		
 	}
 
-	std::vector <IPulse*> AggregatedPulse::getvalues()
-	{
-		std::vector<IPulse*> result;
-		for (std::vector<IUnit> exclude : exclusionSet)
-		{
-			std::vector<IPulse*> buffer;
-			for (IUnit variable : exclude)
-			{
-				buffer.push_back(new Graph::UnitPulse(variable.value, variable.variable));
-			}
-			result.push_back(new Graph::Pulse(true, buffer));
-		}
-		return result;
-	}
+
+	std::vector <Graph::UnitPulse*> AggregatedPulse::getUnits() {}
+	std::vector <Graph::IPulse*> AggregatedPulse::getPulses() {}
 
 	std::vector<IUnit> AggregatedPulse::getVariables()
 	{

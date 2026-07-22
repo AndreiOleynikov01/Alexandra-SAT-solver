@@ -30,7 +30,8 @@ namespace Graph
 		virtual IPulse* operator+(IPulse&);
 		virtual bool operator==(IPulse&);
 		virtual IPulse* open();
-		virtual std::vector <IPulse*> getvalues();
+		virtual std::vector <Graph::UnitPulse*> getUnits();
+		virtual std::vector <Graph::IPulse*> getPulses();
 		virtual std::vector<IUnit> getVariables();
 		virtual std::string print();
 		virtual bool isNegative();
@@ -44,7 +45,8 @@ namespace Graph
 		IPulse* operator+(IPulse&);
 		IPulse* open();
 		bool operator==(IPulse&);
-		std::vector <IPulse*> getvalues();
+		std::vector <Graph::UnitPulse*> getUnits();
+		std::vector <Graph::IPulse*> getPulses();
 		std::vector<IUnit> getVariables();
 		std::string print();
 		bool isNegative();
@@ -62,7 +64,8 @@ namespace Graph
 		IPulse* open();
 		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
-		std::vector <IPulse*> getvalues();
+		std::vector <Graph::UnitPulse*> getUnits();
+		std::vector <Graph::IPulse*> getPulses();
 		std::vector<IUnit> getVariables();
 		std::string print();
 		bool isNegative();
@@ -80,7 +83,8 @@ namespace Graph
 		IPulse* open();
 		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
-		std::vector <IPulse*> getvalues();
+		std::vector <Graph::UnitPulse*> getUnits();
+		std::vector <Graph::IPulse*> getPulses();
 		std::vector<IUnit> getVariables();
 		std::string print();
 		bool isNegative();

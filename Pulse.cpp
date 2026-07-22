@@ -21,7 +21,12 @@ namespace Graph
 
 	IPulse* Pulse::operator+(IPulse& pulse)
 	{
-		
+		if (pulse.type == AggregatedPulse)
+		{
+			return pulse + *this;
+		}
+
+		std::vector<Graph::IPulse*> right_pulses = pulse.getvalues();
 	}
 
 	Pulse::Pulse(bool negative) : IPulse(PulseType::Pulse), negative(negative), units(), pulses() {}
@@ -38,7 +43,13 @@ namespace Graph
 		return new Pulse(false, result);
 	}
 
-	std::vector <IPulse*> Pulse::getvalues()
+
+	std::vector <Graph::UnitPulse*> Pulse::getUnits() 
+	{
+		return units;
+	}
+
+	std::vector <Graph::IPulse*> Pulse::getPulses() 
 	{
 		return pulses;
 	}

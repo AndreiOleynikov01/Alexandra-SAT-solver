@@ -10,7 +10,9 @@ namespace Graph
 
 	IPulse* IPulse::operator+(IPulse&) { return NULL; }
 
-	std::vector <IPulse*> IPulse::getvalues() { return std::vector<IPulse*>(); }
+	std::vector <Graph::UnitPulse*> IPulse::getUnits() { return std::vector<Graph::UnitPulse*>(); }
+
+	std::vector <Graph::IPulse*> IPulse::getPulses() { return std::vector<IPulse*>(); }
 
 	std::vector<IUnit> IPulse::getVariables() { return std::vector<IUnit>(); }
 
