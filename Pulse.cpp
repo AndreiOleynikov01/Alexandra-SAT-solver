@@ -21,12 +21,52 @@ namespace Graph
 
 	IPulse* Pulse::operator+(IPulse& pulse)
 	{
-		if (pulse.type == AggregatedPulse)
+		switch (pulse.type)
 		{
-			return pulse + *this;
-		}
+			case PulseType::UnitPulse:
+			{
+				Graph::UnitPulse& unit_pulse = dynamic_cast<Graph::UnitPulse&>(pulse);
+				std::vector<Graph::UnitPulse*> unit_buffer;
+				std::vector<Graph::IPulse*> pulse_buffer;
 
-		std::vector<Graph::IPulse*> right_pulses = pulse.getvalues();
+				if (unit_pulse.value == CONFLICT)
+				{
+					return &pulse;
+				}
+
+				for (Graph::UnitPulse* u : units)
+				{
+					if (u->variable != unit_pulse.variable)
+					{
+						unit_buffer.push_back(u);
+					}
+					else
+					{
+						if (u->value == unit_pulse.value || u->value ==ANY)
+						{
+							if (!negative)
+							{
+								unit_buffer.push_back(&unit_pulse);
+							}
+						}
+						else
+					}
+				}
+
+				break;
+			}
+			case PulseType::Pulse:
+			{
+				Graph::Pulse& plain_pulse = dynamic_cast<Graph::Pulse&>(pulse);
+
+				break;
+			}
+			case PulseType::AggregatedPulse:
+			{
+				Graph::AggregatedPulse& aggregate_pulse = dynamic_cast<Graph::AggregatedPulse&>(pulse);
+
+			}
+		}
 	}
 
 	Pulse::Pulse(bool negative) : IPulse(PulseType::Pulse), negative(negative), units(), pulses() {}
