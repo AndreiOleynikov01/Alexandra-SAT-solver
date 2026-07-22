@@ -34,6 +34,7 @@ namespace Graph
 		virtual std::vector<IUnit> getVariables();
 		virtual std::string print();
 		virtual bool isNegative();
+		virtual IPulse* negate();
 	};
 
 	class UnitPulse : public virtual IPulse, public virtual IUnit
@@ -46,16 +47,18 @@ namespace Graph
 		std::vector <IPulse*> getvalues();
 		std::vector<IUnit> getVariables();
 		std::string print();
-		bool  isNegative();
+		bool isNegative();
+		IPulse* negate();
 	};
 
 	class Pulse : public virtual IPulse
 	{
+		std::vector<Graph::UnitPulse*> units;
 		std::vector<IPulse*> pulses;
 		bool const negative;
 	public:
 		Pulse(bool = true);
-		Pulse(bool = true, std::vector<IPulse*> = std::vector<IPulse*>());
+		Pulse(bool = true, std::vector<IPulse*> = std::vector<IPulse*>(), std::vector<Graph::UnitPulse*> = std::vector<Graph::UnitPulse*>());
 		IPulse* open();
 		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
@@ -63,6 +66,7 @@ namespace Graph
 		std::vector<IUnit> getVariables();
 		std::string print();
 		bool isNegative();
+		IPulse* negate();
 	};
 
 	class AggregatedPulse : public virtual IPulse
@@ -80,6 +84,7 @@ namespace Graph
 		std::vector<IUnit> getVariables();
 		std::string print();
 		bool isNegative();
+		IPulse* negate();
 	};
 
 	class Accumulator

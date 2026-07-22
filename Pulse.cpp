@@ -24,9 +24,9 @@ namespace Graph
 		
 	}
 
-	Pulse::Pulse(bool negative) : IPulse(PulseType::Pulse), negative(negative), pulses() {}
+	Pulse::Pulse(bool negative) : IPulse(PulseType::Pulse), negative(negative), units(), pulses() {}
 
-	Pulse::Pulse(bool negative, std::vector<IPulse*> pulses) : IPulse(PulseType::Pulse), negative(negative), pulses(pulses) {}
+	Pulse::Pulse(bool negative,  std::vector<IPulse*> pulses, std::vector<Graph::UnitPulse*> units) : IPulse(PulseType::Pulse), negative(negative), units(units), pulses(pulses) {}
 
 	IPulse* Pulse::open()
 	{
@@ -86,5 +86,10 @@ namespace Graph
 	bool Pulse::isNegative()
 	{
 		return negative;
+	}
+
+	Graph::IPulse* Pulse::negate()
+	{
+		return new Pulse(!isNegative, pulses, units);
 	}
 }

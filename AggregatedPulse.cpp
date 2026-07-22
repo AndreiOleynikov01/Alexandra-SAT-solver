@@ -156,4 +156,8 @@ namespace Graph
 		return true;
 	}
 
+	Graph::IPulse* Pulse::negate()
+	{
+
+	}
 }

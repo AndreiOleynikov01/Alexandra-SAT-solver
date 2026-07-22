@@ -1,6 +1,6 @@
 #include "Alexandra.h"
 
-namespace Graph 
+namespace Graph
 {
 	IPulse::IPulse(PulseType type) : type(type) {}
 
@@ -17,4 +17,6 @@ namespace Graph
 	std::string IPulse::print() { return ""; }
 
 	bool IPulse::isNegative() { return false; }
+
+	Graph::IPulse* IPulse::negate() { return NULL; }
 }

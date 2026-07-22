@@ -107,4 +107,21 @@ namespace Graph
 	}
 
 	bool UnitPulse::isNegative() { return false; }
+
+	Graph::IPulse* UnitPulse::negate()
+	{
+		State new_value;
+		switch (this->value)
+		{
+		case TRUE:
+			new_value = FALSE;
+			break;
+		case FALSE:
+			new_value = TRUE;
+			break;
+		default:
+			new_value = this->value;
+		}
+		return new UnitPulse(new_value, this->variable);
+	}
 }
