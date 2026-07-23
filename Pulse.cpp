@@ -78,11 +78,6 @@ namespace Graph
 					return new Graph::UnitPulse(CONFLICT, 0);
 				}
 
-				if (!present)
-				{
-					unit_buffer.push_back(&unit_pulse);
-				}
-
 				for (IPulse* p : pulses)
 				{
 					if (!p->operator==(pulse))
@@ -91,6 +86,11 @@ namespace Graph
 					}
 					else
 					{
+						if (unit_pulse.value == ANY)
+						{
+							present = true;
+						}
+
 						IPulse* intermidiate = p->operator+(unit_pulse);
 						if (intermidiate->type == PulseType::Pulse && !intermidiate->isNegative())
 						{
@@ -119,6 +119,11 @@ namespace Graph
 							pulse_buffer.push_back(intermidiate);
 						}
 					}
+				}
+
+				if (!present)
+				{
+					unit_buffer.push_back(&unit_pulse);
 				}
 
 				if (satisfied)
