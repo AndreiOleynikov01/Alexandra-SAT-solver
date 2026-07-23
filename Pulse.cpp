@@ -48,12 +48,16 @@ namespace Graph
 					{
 						present = true;
 
-						if (u->value == unit_pulse.value || u->value ==ANY)
+						if (u->value == unit_pulse.value || unit_pulse.value ==ANY)
 						{
 							if (!negative)
 							{
 								unit_buffer.push_back(u);
 							}
+						}
+						else if (u->value == ANY)
+						{
+							unit_buffer.push_back(&unit_pulse);
 						}
 						else
 						{
@@ -67,6 +71,11 @@ namespace Graph
 							}
 						}
 					}
+				}
+
+				if (unit_buffer.empty() && pulses.empty())
+				{
+					return new Graph::UnitPulse(CONFLICT, 0);
 				}
 
 				if (!present)
@@ -85,14 +94,37 @@ namespace Graph
 						IPulse* intermidiate = p->operator+(unit_pulse);
 						if (intermidiate->type == PulseType::Pulse && !intermidiate->isNegative())
 						{
-							pulse_buffer.push_back(intermidiate->open());
+							for (Graph::UnitPulse* u : intermidiate->getUnits())
+							{
+								unit_buffer.push_back(u);
+							}
+							for (Graph::IPulse* p : intermidiate->getPulses())
+							{
+								pulse_buffer.push_back(p);
+							}
 							delete intermidiate;
+						}
+						else if (intermidiate->type == PulseType::UnitPulse)
+						{
+							Graph::UnitPulse* unit = dynamic_cast<Graph::UnitPulse*>(intermidiate);
+							if (unit->value == CONFLICT)
+							{
+								return intermidiate;
+							}
+
+							unit_buffer.push_back(unit);
 						}
 						else
 						{
 							pulse_buffer.push_back(intermidiate);
 						}
 					}
+				}
+
+				if (satisfied)
+				{
+					Pulse result = Pulse(negative, pulse_buffer, unit_buffer);
+					return result.open();
 				}
 
 				return new Pulse(negative, pulse_buffer, unit_buffer);
