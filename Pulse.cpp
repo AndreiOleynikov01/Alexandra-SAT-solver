@@ -132,6 +132,16 @@ namespace Graph
 					return result.open();
 				}
 
+				if (unit_buffer.size() == 1 && pulse_buffer.size() == 0)
+				{
+					return unit_buffer[0]->negate();
+				}
+
+				if (unit_buffer.size() == 0 && pulse_buffer.size() == 1)
+				{
+					return pulse_buffer[0]->negate();
+				}
+
 				return new Pulse(negative, pulse_buffer, unit_buffer);
 			}
 			default:
@@ -172,7 +182,7 @@ namespace Graph
 					{
 						for (int j = 0; j < left_unit_buffer.size(); j++)
 						{
-							if (left_unit_buffer[j] != NULL && right_unit_buffer[i] == left_unit_buffer[j])
+							if (left_unit_buffer[j] != NULL && *right_unit_buffer[i] == *left_unit_buffer[j])
 							{
 								Graph::UnitPulse* intermidiate = dynamic_cast<Graph::UnitPulse*>(*right_unit_buffer[i] + *left_unit_buffer[j]);
 								if (intermidiate->value == CONFLICT)
@@ -199,7 +209,7 @@ namespace Graph
 						{
 							for (int j = 0; j < unit_buffer.size(); j++)
 							{
-								if (unit_buffer[j] == right_unit_buffer[i])
+								if (*unit_buffer[j] == *right_unit_buffer[i])
 								{
 									Graph::UnitPulse* intermidiate = dynamic_cast<Graph::UnitPulse*>(*right_unit_buffer[i] + *unit_buffer[j]);
 									if (intermidiate->value == CONFLICT)
@@ -225,7 +235,7 @@ namespace Graph
 							{
 								for (int j = 0; j < pulse_buffer.size(); j++)
 								{
-									if (pulse_buffer[j] == left_unit_buffer[i])
+									if (*pulse_buffer[j] == *left_unit_buffer[i])
 									{
 										Graph::IPulse* delete_register = pulse_buffer[j];
 										Graph::IPulse* intermidiate = *right_unit_buffer[i] + *pulse_buffer[j];
@@ -259,7 +269,10 @@ namespace Graph
 
 										delete delete_register;
 										present = true;
-										unit_buffer.push_back(right_unit_buffer[i]);
+										if (right_unit_buffer[i]->value != ANY)
+										{
+											unit_buffer.push_back(right_unit_buffer[i]);
+										}
 									}
 								}
 
@@ -267,7 +280,7 @@ namespace Graph
 								{
 									for (int j = 0; j < left_pulse_buffer.size(); j++)
 									{
-										if (left_pulse_buffer[j] != NULL && right_unit_buffer[i] == left_pulse_buffer[j])
+										if (left_pulse_buffer[j] != NULL && *right_unit_buffer[i] == *left_pulse_buffer[j])
 										{
 											Graph::IPulse* intermidiate = *right_unit_buffer[i] + *left_pulse_buffer[j];
 
@@ -299,8 +312,17 @@ namespace Graph
 											}
 
 											left_pulse_buffer[j] = NULL;
-											unit_buffer.push_back(right_unit_buffer[i]);
+											if (right_unit_buffer[i]->value != ANY)
+											{
+												unit_buffer.push_back(right_unit_buffer[i]);
+											}
+											present = true;
 										}
+									}
+
+									if (!present)
+									{
+										unit_buffer.push_back(right_unit_buffer[i]);
 									}
 								}
 							}
@@ -308,9 +330,147 @@ namespace Graph
 
 						right_unit_buffer[i] = NULL;
 					}
-					//continue here: right pulse buffer
+					
+					for (int i = 0; i < right_pulse_buffer.size(); i++)
+					{
+						bool present = false;
+						Graph::IPulse* intermidiate = right_pulse_buffer[i];
+						Graph::IPulse* delete_buffer = NULL;
 
+						if (right_pulse_buffer[i] != NULL)
+						{
+							for (int j = 0; j < left_unit_buffer.size(); j++)
+							{
+								if (left_unit_buffer[j] != NULL && *intermidiate == *left_pulse_buffer[j])
+								{
+									intermidiate = *intermidiate + *left_unit_buffer[j];
+									if (delete_buffer != NULL)
+									{
+										delete intermidiate;
+									}
+									delete_buffer = intermidiate;
+									present = true;
+									left_unit_buffer[j] = NULL;
+								}
+							}
+
+							for (int j = 0; j < unit_buffer.size(); j++)
+							{
+								if (*unit_buffer[j] == *intermidiate)
+								{
+									intermidiate = *intermidiate + *unit_buffer[j];
+									if (delete_buffer != NULL)
+									{
+										delete delete_buffer;
+									}
+									delete_buffer = intermidiate;
+									present = true;
+									if (unit_buffer[j]->value == ANY)
+									{
+										unit_buffer.erase(std::next(unit_buffer.begin(), j));
+									}
+								}
+							}
+
+							for (int j = 0; j < pulse_buffer.size(); j++)
+							{
+								if (*pulse_buffer[j] == *intermidiate)
+								{
+									intermidiate = *intermidiate + *pulse_buffer[j];
+									if (delete_buffer != NULL)
+									{
+										delete delete_buffer;
+									}
+
+									pulse_buffer.erase(std::next(pulse_buffer.begin(), j));
+									delete_buffer = intermidiate;
+									present = true;
+								}
+							}
+
+							for (int j = 0; j < left_pulse_buffer.size(); j++)
+							{
+								if (left_pulse_buffer[j] != NULL && *left_pulse_buffer[j] == *right_pulse_buffer[i])
+								{
+									intermidiate = *intermidiate + *left_pulse_buffer[j];
+									if (delete_buffer != NULL)
+									{
+										delete delete_buffer;
+									}
+
+									left_pulse_buffer[j] = NULL;
+									delete_buffer = intermidiate;
+									present = true;
+								}
+							}
+
+							if (intermidiate->type == PulseType::UnitPulse)
+							{
+								if (dynamic_cast<Graph::UnitPulse*>(intermidiate)->value == CONFLICT)
+								{
+									if (negative && pulse.isNegative())
+									{
+										//Aggregate constructor
+									}
+									else
+									{
+										return intermidiate;
+									}
+								}
+								else
+								{
+									unit_buffer.push_back(dynamic_cast<Graph::UnitPulse*>(intermidiate));
+								}
+							}
+							else if (intermidiate->type == PulseType::Pulse && !intermidiate->isNegative())
+							{
+								for (Graph::UnitPulse* u : intermidiate->getUnits())
+								{
+									unit_buffer.push_back(u);
+								}
+								
+								for (Graph::IPulse* p : intermidiate->getPulses())
+								{
+									pulse_buffer.push_back(p);
+								}
+							}
+							else
+							{
+								pulse_buffer.push_back(intermidiate);
+							}
+						}
+					}
+
+					right_pulse_buffer[i] = NULL;
 				}
+
+				for (int i = 0; i < left_unit_buffer.size(); i++)
+				{
+					if (left_unit_buffer[i] != NULL)
+					{
+						unit_buffer.push_back(left_unit_buffer[i]);
+					}
+				}
+
+				for (int i = 0; i < left_pulse_buffer.size(); i++)
+				{
+					if (left_pulse_buffer[i] != NULL)
+					{
+						pulse_buffer.push_back(left_pulse_buffer[i]);
+					}
+				}
+
+				if (unit_buffer.size() == 1 && pulse_buffer.size() == 0)
+				{
+					return unit_buffer[0]->negate();
+				}
+
+				if (unit_buffer.size() == 0 && pulse_buffer.size() == 1)
+				{
+					return pulse_buffer[0]->negate();
+				}
+
+				return new Graph::Pulse(negative, pulse_buffer, unit_buffer);
 			}
 		}
 
@@ -346,6 +506,10 @@ namespace Graph
 	std::vector<IUnit> Pulse::getVariables()
 	{
 		std::vector<IUnit> vec;
+		for (Graph::UnitPulse* unit : units)
+		{
+			vec.push_back(unit);
+		}
 		for (IPulse* pulse : pulses)
 		{
 			for (IUnit unit : pulse->getVariables())
