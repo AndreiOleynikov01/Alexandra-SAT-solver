@@ -75,11 +75,11 @@ namespace Graph
 	class AggregatedPulse : public virtual IPulse
 	{
 		int size;
-		std::vector<std::vector<IUnit>> exclusionSet;
-		std::vector<IPulse*> definitiveSet;
+		bool negative;
+		std::vector<int> variables;
+		std::vector<IPulse*> entries;
 	public:
-		AggregatedPulse();
-		AggregatedPulse(Graph::Pulse&, Graph::Pulse&);
+		AggregatedPulse(bool = true, Graph::Pulse&, Graph::Pulse&);
 		IPulse* open();
 		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
