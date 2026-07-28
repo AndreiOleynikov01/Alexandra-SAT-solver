@@ -2,73 +2,56 @@
 
 namespace Graph
 {
-	AggregatedPulse::AggregatedPulse() : IPulse(PulseType::AggregatedPulse), exclusionSet(), definitiveSet(), size(0) {}
+	AggregatedPulse::AggregatedPulse(bool negative, std::vector<int> variables, std::vector<IPulse*> entries) : IPulse(PulseType::AggregatedPulse), negative(negative), variables(variables), entries(entries){}
 
-	AggregatedPulse::AggregatedPulse(Graph::Pulse& left, Graph::Pulse& right) : IPulse(PulseType::AggregatedPulse), exclusionSet(), definitiveSet(), size(0)
+	AggregatedPulse::AggregatedPulse(bool negative, Graph::Pulse& left, Graph::Pulse& right) : IPulse(PulseType::AggregatedPulse), negative(negative), variables(), entries()
 	{
-		if (left.isNegative() && right.isNegative())
+		std::vector<IUnit> left_variables = left.getVariables();
+		std::vector<IUnit> right_variables = right.getVariables();
+		std::vector<Graph::UnitPulse*>right_padding, left_padding;
+		
+		for (IUnit lu : left_variables)
 		{
-			std::vector<int> common_variables, left_variables, right_variables;
-			std::vector<IPulse*> left_buffer = left.getvalues();
-			std::vector<IPulse*> right_buffer = right.getvalues();
-			std::vector<IUnit> left_exclusive = left.getVariables();
-			std::vector<IUnit> right_exclusive = right.getVariables();
-
-			for (IPulse* lp : left_buffer)
+			bool found = false;
+			for (IUnit ru : right_variables)
 			{
-				bool common = false;
-				for (IPulse* rp : right_buffer)
+				if (lu.variable == ru.variable)
 				{
-					if (*lp == *rp)
-					{
-						common = true;
-						common_variables.push_back(dynamic_cast<Graph::UnitPulse*>(lp)->variable);
-					}
-				}
-				if (!common)
-				{
-					left_variables.push_back(dynamic_cast<Graph::UnitPulse*>(lp)->variable);
-				}
-			}
-			for (IPulse* rp : right_buffer)
-			{
-				int rv = dynamic_cast<Graph::UnitPulse*>(rp)->variable;
-				bool common = false;
-				for (int lv : common_variables)
-				{
-					if (lv == rv)
-					{
-						common = true;
-					}
-				}
-				if (!common)
-				{
-					right_variables.push_back(rv);
+					found = true;
+					variables.push_back(lu.variable);
 				}
 			}
 
-			for (int lv : left_variables)
+			if (!found)
 			{
-				Graph::UnitPulse* lp = new Graph::UnitPulse(ANY, lv);
-				right_exclusive.push_back(*lp);
-				definitiveSet.push_back(lp);
+				right_padding.push_back(new Graph::UnitPulse(ANY, lu.variable));
 			}
-			for (int rv : right_variables)
-			{
-				Graph::UnitPulse* lp = new Graph::UnitPulse(ANY, rv);
-				left_exclusive.push_back(*lp);
-				definitiveSet.push_back(lp);
-			}
-			for (int v : common_variables)
-			{
-
-				definitiveSet.push_back(new Graph::UnitPulse(ANY, v));
-			}
-
-			exclusionSet.push_back(left_exclusive);
-			exclusionSet.push_back(right_exclusive);
-			size = common_variables.size() + left_variables.size() + right_variables.size();
 		}
+
+		for (IUnit ru : right_variables)
+		{
+			bool found = false;
+			for (int i : variables)
+			{
+				if (ru.variable == i)
+				{
+					found = true;
+				}
+			}
+
+			if (!found)
+			{
+				left_padding.push_back(new Graph::UnitPulse(ANY, ru.variable));
+			}
+		}
+		Graph::Pulse left_padding_pulse(false, std::vector<IPulse*>(), left_padding);
+		Graph::IPulse* left_entry = *left.negate()+left_padding_pulse;
+
+		Graph::Pulse right_padding_pulse(false, std::vector<IPulse*>(), right_padding);
+		Graph::IPulse* right_entry = *left.negate() + right_padding_pulse;
+
+		entries.push_back(left_entry);
+		entries.push_back(right_entry);
 	}
 
 	bool AggregatedPulse::operator==(IPulse& pulse)
@@ -90,23 +73,129 @@ namespace Graph
 
 	IPulse* AggregatedPulse::operator+ (IPulse& pulse)
 	{
-		
+		std::vector<int> variables;
+		std::vector<IPulse*> entries;
+
+		switch (pulse.type) 
+		{
+			case UnitPulse:
+			{
+				Graph::UnitPulse* unit_pulse = dynamic_cast<Graph::UnitPulse*>(&pulse);
+				for (int i : this->variables)
+				{
+					if (i != unit_pulse->variable)
+					{
+						variables.push_back(i);
+					}
+				}
+
+				if (variables.size() == 1)
+				{
+					return &pulse;
+				}
+
+				for (IPulse* entry : this->entries)
+				{
+					IPulse* negation = entry->negate();
+					IPulse* intermidiate = *negation + pulse;
+					
+					if (intermidiate->isNegative())
+					{
+						entries.push_back(intermidiate->negate());
+					}
+
+					delete negation;
+					delete intermidiate;
+				}
+
+				if (entries.empty())
+				{
+					return new Graph::UnitPulse(CONFLICT, 0);
+				}
+
+				if (entries.size() == 1)
+				{
+					if (negative)
+					{
+						return entries.front();
+					}
+					else
+					{
+						return entries.front()->negate();
+					}
+				}
+
+				return new AggregatedPulse(negative, variables, entries);
+			}
+			case Pulse:
+			{
+				if (pulse != *this)
+				{
+					return pulse + *this;
+				}
+
+				std::vector<int> variables, left_padding, right_padding;
+
+				for (int i : this->variables)
+				{
+					bool present = false;
+					variables.push_back(i);
+					for (IUnit v : pulse.getVariables())
+					{
+						if (v.variable == i)
+						{
+							present = true;
+						}
+					}
+					if (!present)
+					{
+						right_padding.push_back(i);
+					}
+				}
+
+				for (IUnit v : pulse.getVariables())
+				{
+					bool present = false;
+					for (int i : this->variables)
+					{
+						if (v.variable == i)
+						{
+							present = true;
+						}
+					}
+					if (!present)
+					{
+						variables.push_back(v.variable);
+						left_padding.push_back(v.variable);
+					}
+				}
+
+				for (IPulse* entry : this->entries)
+				{
+
+				}
+			}
+		}
 	}
 
 
-	std::vector <Graph::UnitPulse*> AggregatedPulse::getUnits() {}
-	std::vector <Graph::IPulse*> AggregatedPulse::getPulses() {}
+	std::vector <Graph::UnitPulse*> AggregatedPulse::getUnits() 
+	{
+		return std::vector<Graph::UnitPulse*>();
+	}
+
+	std::vector <Graph::IPulse*> AggregatedPulse::getPulses() 
+	{
+		return entries;
+	}
 
 	std::vector<IUnit> AggregatedPulse::getVariables()
 	{
 		std::vector<IUnit> vec;
 
-		for (IPulse* pulse : definitiveSet)
+		for (int i : variables)
 		{
-			for (IUnit unit : pulse->getVariables())
-			{
-				vec.push_back(unit);
-			}
+			vec.push_back(IUnit(ANY, i));
 		}
 
 		return vec;
@@ -114,29 +203,20 @@ namespace Graph
 
 	IPulse* AggregatedPulse::open()
 	{
-		return new Graph::Pulse(false, definitiveSet);
+		std::vector<Graph::UnitPulse*> definitiveSet;
+
+		for (int i : variables)
+		{
+			definitiveSet.push_back(new Graph::UnitPulse(ANY, i));
+		}
+
+		return new Graph::Pulse(false, std::vector<IPulse*>(), definitiveSet);
 	}
 
 	std::string AggregatedPulse::print()
 	{
 		std::string result;
-		result += "Not { ";
-		for (int i = 0; i < exclusionSet.size(); i++)
-		{
-			result += "( ";
-			std::vector<IPulse*> buffer;
-			for (IUnit variable : exclusionSet[i])
-			{
-				buffer.push_back(new Graph::UnitPulse(variable.value, variable.variable));
-			}
-			result += Graph::Pulse(false, buffer).print();
-			result += " )";
-			if (i < exclusionSet.size() - 1)
-			{
-				result += ", ";
-			}
-		}
-		result += " }";
+		
 		return result;
 	}
 
@@ -145,8 +225,8 @@ namespace Graph
 		return true;
 	}
 
-	Graph::IPulse* Pulse::negate()
+	Graph::IPulse* Graph::AggregatedPulse::negate()
 	{
-
+		return new AggregatedPulse(!negative, variables, entries);
 	}
 }

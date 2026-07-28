@@ -156,7 +156,7 @@ namespace Graph
 					left_unit_buffer = pulse.getUnits();
 					left_pulse_buffer = pulse.getPulses();
 				}
-				else if(pulse.isNegative() || pulse.type == PulseType::AggregatedPulse)
+				else if(pulse.isNegative())
 				{
 					left_pulse_buffer.push_back(&pulse);
 				}
@@ -471,6 +471,10 @@ namespace Graph
 				}
 
 				return new Graph::Pulse(negative, pulse_buffer, unit_buffer);
+			}
+			case AggregatedPulse:
+			{
+
 			}
 		}
 
