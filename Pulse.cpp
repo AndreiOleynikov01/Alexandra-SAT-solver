@@ -156,7 +156,7 @@ namespace Graph
 					left_unit_buffer = pulse.getUnits();
 					left_pulse_buffer = pulse.getPulses();
 				}
-				else if(pulse.isNegative())
+				else if(!negative)
 				{
 					left_pulse_buffer.push_back(&pulse);
 				}
@@ -193,7 +193,7 @@ namespace Graph
 									}
 									else
 									{
-										//constructor for aggregates
+										return new Graph::AggregatedPulse(false, *dynamic_cast<Pulse*>(this), dynamic_cast<Pulse&>(pulse));
 									}
 								}
 								else
@@ -220,7 +220,7 @@ namespace Graph
 										}
 										else
 										{
-											//constructor for aggregates
+											return new Graph::AggregatedPulse(false, *dynamic_cast<Pulse*>(this), dynamic_cast<Pulse&>(pulse));
 										}
 									}
 									else
@@ -410,7 +410,7 @@ namespace Graph
 								{
 									if (negative && pulse.isNegative())
 									{
-										//Aggregate constructor
+										return new Graph::AggregatedPulse(false, *dynamic_cast<Pulse*>(this), dynamic_cast<Pulse&>(pulse));
 									}
 									else
 									{
@@ -472,10 +472,6 @@ namespace Graph
 
 				return new Graph::Pulse(negative, pulse_buffer, unit_buffer);
 			}
-			case AggregatedPulse:
-			{
-
-			}
 		}
 
 
@@ -534,7 +530,7 @@ namespace Graph
 
 		for (int i = 0; i < pulses.size(); i++)
 		{
-			result += pulses.at(i)->print();
+			result += pulses[i]->print();
 
 			if (i < pulses.size() - 1)
 			{
