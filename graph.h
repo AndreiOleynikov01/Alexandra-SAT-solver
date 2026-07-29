@@ -78,8 +78,9 @@ namespace Graph
 		bool negative;
 		std::vector<int> variables;
 		std::vector<IPulse*> entries;
+		AggregatedPulse(bool, std::vector<int>, std::vector<IPulse*>);
 	public:
-		AggregatedPulse(bool = true, Graph::Pulse&, Graph::Pulse&);
+		AggregatedPulse(bool, Graph::Pulse&, Graph::Pulse&);
 		IPulse* open();
 		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
