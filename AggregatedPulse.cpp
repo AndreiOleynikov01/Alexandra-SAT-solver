@@ -89,16 +89,11 @@ namespace Graph
 					}
 				}
 
-				if (variables.size() == 1)
-				{
-					return &pulse;
-				}
-
 				for (IPulse* entry : this->entries)
 				{
 					IPulse* negation = entry->negate();
 					IPulse* intermidiate = *negation + pulse;
-					
+
 					if (intermidiate->isNegative())
 					{
 						entries.push_back(intermidiate->negate());
@@ -117,11 +112,11 @@ namespace Graph
 				{
 					if (negative)
 					{
-						return entries.front();
+						return entries.front()->negate();
 					}
 					else
 					{
-						return entries.front()->negate();
+						return entries.front();
 					}
 				}
 
@@ -129,12 +124,12 @@ namespace Graph
 			}
 			case Pulse:
 			{
-				if (pulse != *this)
+				if (pulse != *this || !pulse.isNegative())
 				{
 					return pulse + *this;
 				}
 
-				std::vector<int> variables, left_padding, right_padding;
+				std::vector<Graph::UnitPulse*> left_padding, right_padding;
 
 				for (int i : this->variables)
 				{
@@ -149,7 +144,7 @@ namespace Graph
 					}
 					if (!present)
 					{
-						right_padding.push_back(i);
+						right_padding.push_back(new Graph::UnitPulse(ANY, i));
 					}
 				}
 
@@ -166,14 +161,267 @@ namespace Graph
 					if (!present)
 					{
 						variables.push_back(v.variable);
-						left_padding.push_back(v.variable);
+						left_padding.push_back(new Graph::UnitPulse(ANY, v.variable));
 					}
 				}
 
+				IPulse* positive_pulse;
+				IPulse* intermidiate;
+
 				for (IPulse* entry : this->entries)
 				{
+					if (negative)
+					{
+						intermidiate = *entry + pulse;
+					}
+					else
+					{
+						positive_pulse = pulse.negate();
+						intermidiate = *entry + *positive_pulse;
+					}
 
+					if (intermidiate->type != UnitPulse)
+					{
+						entries.push_back(intermidiate);
+					}
+					else
+					{
+						delete intermidiate;
+					}
+
+					if (positive_pulse != NULL)
+					{
+						delete positive_pulse;
+					}
 				}
+
+				if (entries.empty())
+				{
+					if (negative)
+					{
+						return new Graph::UnitPulse(CONFLICT, 0);
+					}
+					else
+					{
+						Graph::Pulse right_padding_pulse(false, std::vector<IPulse*>(), right_padding), left_padding_pulse(false, std::vector<IPulse*>(), left_padding);
+
+						for (IPulse* p : this->entries)
+						{
+							if (!left_padding.empty())
+							{
+								entries.push_back(*p + left_padding_pulse);
+							}
+							else
+							{
+								entries.push_back(p);
+							}
+						}
+						if (!right_padding.empty())
+						{
+							entries.push_back(*pulse.negate() + right_padding_pulse);
+						}
+						else
+						{
+							entries.push_back(pulse.negate());
+						}
+
+					}
+				}
+				else if (entries.size() == 1) 
+				{
+					if (negative)
+					{
+						return entries.front()->negate();
+					}
+					else
+					{
+						return entries.front();
+					}
+				}
+
+				return new AggregatedPulse(negative, variables, entries);
+			}
+			case PulseType::AggregatedPulse:
+			{
+				if (pulse != *this)
+				{
+					std::vector<IPulse*> vec;
+					vec.push_back(this);
+					vec.push_back(&pulse);
+					return new Graph::Pulse(false, vec);
+				}
+
+				std::vector<Graph::UnitPulse*> left_padding, right_padding;
+
+				for (int i : this->variables)
+				{
+					bool present = false;
+					variables.push_back(i);
+					for (IUnit v : pulse.getVariables())
+					{
+						if (v.variable == i)
+						{
+							present = true;
+						}
+					}
+					if (!present)
+					{
+						right_padding.push_back(new Graph::UnitPulse(ANY, i));
+					}
+				}
+
+				for (IUnit v : pulse.getVariables())
+				{
+					bool present = false;
+					for (int i : this->variables)
+					{
+						if (v.variable == i)
+						{
+							present = true;
+						}
+					}
+					if (!present)
+					{
+						variables.push_back(v.variable);
+						left_padding.push_back(new Graph::UnitPulse(ANY, v.variable));
+					}
+				}
+
+				std::vector<Graph::IPulse*> left_entries, right_entries;
+
+				if (negative == pulse.isNegative())
+				{
+					for (IPulse* entry : this->entries)
+					{
+						left_entries.push_back(entry);
+					}
+
+					for (IPulse* entry : pulse.getPulses())
+					{
+						right_entries.push_back(entry);
+					}
+
+					for (IPulse* lp : left_entries)
+					{
+						IPulse* intermidiate;
+						for (IPulse* rp : right_entries)
+						{
+							intermidiate = *lp + *rp;
+
+							if (intermidiate->type == Pulse)
+							{
+								entries.push_back(intermidiate);
+							}
+							else
+							{
+								delete intermidiate;
+							}
+						}
+					}
+				}
+				else
+				{
+					for (IPulse* entry : this->entries)
+					{
+						if (negative)
+						{
+							left_entries.push_back(entry);
+						}
+						else
+						{
+							right_entries.push_back(entry->negate());
+						}
+					}
+
+					for (IPulse* entry : pulse.getPulses())
+					{
+						if (pulse.isNegative())
+						{
+							left_entries.push_back(entry);
+						}
+						else
+						{
+							right_entries.push_back(entry->negate());
+						}
+					}
+
+					for (IPulse* lp : left_entries)
+					{
+						bool acceptable = false;
+						IPulse* intermidiate;
+						for (IPulse* rp : right_entries)
+						{
+							intermidiate = *lp + *rp;
+
+							if (intermidiate->type != UnitPulse)
+							{
+								acceptable = true;
+							}
+							delete intermidiate;
+						}
+
+						if (acceptable)
+						{
+							entries.push_back(lp);
+						}
+					}
+				}
+
+				if (entries.empty())
+				{
+					if (negative == pulse.isNegative())
+					{
+						if (negative)
+						{
+							return new Graph::UnitPulse(CONFLICT, 0);
+						}
+						else
+						{
+							Graph::Pulse right_padding_pulse(false, std::vector<IPulse*>(), right_padding), left_padding_pulse(false, std::vector<IPulse*>(), left_padding);
+
+							for (IPulse* lp : left_entries)
+							{
+								if (!left_padding.empty())
+								{
+									entries.push_back(*lp + left_padding_pulse);
+								}
+								else
+								{
+									entries.push_back(lp);
+								}
+							}
+
+							for (IPulse* rp : right_entries)
+							{
+								if (!left_padding.empty())
+								{
+									entries.push_back(*rp + right_padding_pulse);
+								}
+								else
+								{
+									entries.push_back(rp);
+								}
+							}
+						}
+					}
+					else
+					{
+						return new Graph::UnitPulse(CONFLICT, 0);
+					}
+				}
+				else if (entries.size() == 1)
+				{
+					if (negative && pulse.isNegative())
+					{
+						return entries.front()->negate();
+					}
+					else
+					{
+						return entries.front();
+					}
+				}
+
+				return new AggregatedPulse(!(negate && negative), variables, entries);
 			}
 		}
 	}
@@ -217,6 +465,25 @@ namespace Graph
 	{
 		std::string result;
 		
+		if (negative)
+		{
+			result += "Either [";
+		}
+		else
+		{
+			result += "Neither [";
+		}
+
+		for (int i = 0; i < entries.size(); i++)
+		{
+			result += "(" + entries[i]->print() + ")";
+			if (i < entries.size() - 1)
+			{
+				result += ", ";
+			}
+		}
+		result += "]";
+
 		return result;
 	}
 
