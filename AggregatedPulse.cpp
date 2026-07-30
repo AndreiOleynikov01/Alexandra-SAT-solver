@@ -99,8 +99,8 @@ namespace Graph
 						entries.push_back(intermidiate->negate());
 					}
 
-					delete negation;
-					delete intermidiate;
+					//delete negation;
+					//delete intermidiate;
 				}
 
 				if (entries.empty())
@@ -165,7 +165,7 @@ namespace Graph
 					}
 				}
 
-				IPulse* positive_pulse;
+				IPulse* positive_pulse = NULL;
 				IPulse* intermidiate;
 
 				for (IPulse* entry : this->entries)
@@ -184,15 +184,15 @@ namespace Graph
 					{
 						entries.push_back(intermidiate);
 					}
-					else
+					/*else
 					{
 						delete intermidiate;
-					}
+					}*/
 
-					if (positive_pulse != NULL)
+					/*if (positive_pulse != NULL)
 					{
 						delete positive_pulse;
-					}
+					}*/
 				}
 
 				if (entries.empty())
@@ -312,10 +312,10 @@ namespace Graph
 							{
 								entries.push_back(intermidiate);
 							}
-							else
+							/*else
 							{
 								delete intermidiate;
-							}
+							}*/
 						}
 					}
 				}
@@ -357,7 +357,7 @@ namespace Graph
 							{
 								acceptable = true;
 							}
-							delete intermidiate;
+							//delete intermidiate;
 						}
 
 						if (acceptable)
@@ -421,15 +421,15 @@ namespace Graph
 					}
 				}
 
-				return new AggregatedPulse(!(negate && negative), variables, entries);
+				return new AggregatedPulse(!(pulse.isNegative() && negative), variables, entries);
 			}
 		}
 	}
 
 
-	std::vector <Graph::UnitPulse*> AggregatedPulse::getUnits() 
+	std::vector <Graph::IUnit*> AggregatedPulse::getUnits() 
 	{
-		return std::vector<Graph::UnitPulse*>();
+		return std::vector<Graph::IUnit*>();
 	}
 
 	std::vector <Graph::IPulse*> AggregatedPulse::getPulses() 

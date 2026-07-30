@@ -94,9 +94,9 @@ namespace Graph
 						IPulse* intermidiate = p->operator+(unit_pulse);
 						if (intermidiate->type == PulseType::Pulse && !intermidiate->isNegative())
 						{
-							for (Graph::UnitPulse* u : intermidiate->getUnits())
+							for (Graph::IUnit* u : intermidiate->getUnits())
 							{
-								unit_buffer.push_back(u);
+								unit_buffer.push_back(dynamic_cast<Graph::UnitPulse*>(u));
 							}
 							for (Graph::IPulse* p : intermidiate->getPulses())
 							{
@@ -153,7 +153,10 @@ namespace Graph
 
 				if (pulse.type==PulseType::Pulse && pulse.isNegative() == negative)
 				{
-					left_unit_buffer = pulse.getUnits();
+					for (IUnit* u : pulse.getUnits())
+					{
+						left_unit_buffer.push_back(dynamic_cast<Graph::UnitPulse*>(u));
+					}
 					left_pulse_buffer = pulse.getPulses();
 				}
 				else if(!negative)
@@ -182,7 +185,7 @@ namespace Graph
 					{
 						for (int j = 0; j < left_unit_buffer.size(); j++)
 						{
-							if (left_unit_buffer[j] != NULL && *right_unit_buffer[i] == *left_unit_buffer[j])
+							if (left_unit_buffer[j] != NULL && *dynamic_cast<IPulse*>(right_unit_buffer[i]) == *left_unit_buffer[j])
 							{
 								Graph::UnitPulse* intermidiate = dynamic_cast<Graph::UnitPulse*>(*right_unit_buffer[i] + *left_unit_buffer[j]);
 								if (intermidiate->value == CONFLICT)
@@ -209,7 +212,7 @@ namespace Graph
 						{
 							for (int j = 0; j < unit_buffer.size(); j++)
 							{
-								if (*unit_buffer[j] == *right_unit_buffer[i])
+								if (*dynamic_cast<IPulse*>(unit_buffer[j]) == *right_unit_buffer[i])
 								{
 									Graph::UnitPulse* intermidiate = dynamic_cast<Graph::UnitPulse*>(*right_unit_buffer[i] + *unit_buffer[j]);
 									if (intermidiate->value == CONFLICT)
@@ -235,7 +238,7 @@ namespace Graph
 							{
 								for (int j = 0; j < pulse_buffer.size(); j++)
 								{
-									if (*pulse_buffer[j] == *left_unit_buffer[i])
+									if (*pulse_buffer[j] == *right_unit_buffer[i])
 									{
 										Graph::IPulse* delete_register = pulse_buffer[j];
 										Graph::IPulse* intermidiate = *right_unit_buffer[i] + *pulse_buffer[j];
@@ -246,9 +249,9 @@ namespace Graph
 										}
 										else if (intermidiate->type == PulseType::Pulse && !intermidiate->isNegative())
 										{
-											for (Graph::UnitPulse* unit : intermidiate->getUnits())
+											for (Graph::IUnit* unit : intermidiate->getUnits())
 											{
-												unit_buffer.push_back(unit);
+												unit_buffer.push_back(dynamic_cast<Graph::UnitPulse*>(unit));
 											}
 											for (Graph::IPulse* plain_pulse : intermidiate->getPulses())
 											{
@@ -267,7 +270,7 @@ namespace Graph
 											}
 										}
 
-										delete delete_register;
+										//delete delete_register;
 										present = true;
 										if (right_unit_buffer[i]->value != ANY)
 										{
@@ -290,9 +293,9 @@ namespace Graph
 											}
 											else if (intermidiate->type == PulseType::Pulse && !intermidiate->isNegative())
 											{
-												for (Graph::UnitPulse* unit : intermidiate->getUnits())
+												for (Graph::IUnit* unit : intermidiate->getUnits())
 												{
-													unit_buffer.push_back(unit);
+													unit_buffer.push_back(dynamic_cast<Graph::UnitPulse*>(unit));
 												}
 												for (Graph::IPulse* plain_pulse : intermidiate->getPulses())
 												{
@@ -341,12 +344,12 @@ namespace Graph
 						{
 							for (int j = 0; j < left_unit_buffer.size(); j++)
 							{
-								if (left_unit_buffer[j] != NULL && *intermidiate == *left_pulse_buffer[j])
+								if (left_unit_buffer[j] != NULL && *intermidiate == *left_unit_buffer[j])
 								{
 									intermidiate = *intermidiate + *left_unit_buffer[j];
 									if (delete_buffer != NULL)
 									{
-										delete intermidiate;
+										//delete intermidiate;
 									}
 									delete_buffer = intermidiate;
 									present = true;
@@ -359,10 +362,10 @@ namespace Graph
 								if (*unit_buffer[j] == *intermidiate)
 								{
 									intermidiate = *intermidiate + *unit_buffer[j];
-									if (delete_buffer != NULL)
+									/*if (delete_buffer != NULL)
 									{
 										delete delete_buffer;
-									}
+									}*/
 									delete_buffer = intermidiate;
 									present = true;
 									if (unit_buffer[j]->value == ANY)
@@ -377,10 +380,10 @@ namespace Graph
 								if (*pulse_buffer[j] == *intermidiate)
 								{
 									intermidiate = *intermidiate + *pulse_buffer[j];
-									if (delete_buffer != NULL)
+									/*if (delete_buffer != NULL)
 									{
 										delete delete_buffer;
-									}
+									}*/
 
 									pulse_buffer.erase(std::next(pulse_buffer.begin(), j));
 									delete_buffer = intermidiate;
@@ -393,10 +396,10 @@ namespace Graph
 								if (left_pulse_buffer[j] != NULL && *left_pulse_buffer[j] == *right_pulse_buffer[i])
 								{
 									intermidiate = *intermidiate + *left_pulse_buffer[j];
-									if (delete_buffer != NULL)
+									/*if (delete_buffer != NULL)
 									{
 										delete delete_buffer;
-									}
+									}*/
 
 									left_pulse_buffer[j] = NULL;
 									delete_buffer = intermidiate;
@@ -424,9 +427,9 @@ namespace Graph
 							}
 							else if (intermidiate->type == PulseType::Pulse && !intermidiate->isNegative())
 							{
-								for (Graph::UnitPulse* u : intermidiate->getUnits())
+								for (Graph::IUnit* u : intermidiate->getUnits())
 								{
-									unit_buffer.push_back(u);
+									unit_buffer.push_back(dynamic_cast<Graph::UnitPulse*>(u));
 								}
 								
 								for (Graph::IPulse* p : intermidiate->getPulses())
@@ -441,7 +444,7 @@ namespace Graph
 						}
 					}
 
-					right_pulse_buffer[i] = NULL;
+					right_unit_buffer[i] = NULL;
 				}
 
 				for (int i = 0; i < left_unit_buffer.size(); i++)
@@ -492,8 +495,15 @@ namespace Graph
 	}
 
 
-	std::vector <Graph::UnitPulse*> Pulse::getUnits() 
+	std::vector <Graph::IUnit*> Pulse::getUnits() 
 	{
+		std::vector<IUnit*> units;
+
+		for (Graph::UnitPulse* unit : this->units)
+		{
+			units.push_back(unit);
+		}
+
 		return units;
 	}
 
@@ -553,6 +563,6 @@ namespace Graph
 
 	Graph::IPulse* Pulse::negate()
 	{
-		return new Pulse(!isNegative, pulses, units);
+		return new Pulse(!negative, pulses, units);
 	}
 }

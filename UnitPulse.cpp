@@ -78,9 +78,9 @@ namespace Graph
 
 
 
-	std::vector <Graph::UnitPulse*> UnitPulse::getUnits() 
+	std::vector <Graph::IUnit*> UnitPulse::getUnits() 
 	{ 
-		std::vector<UnitPulse*> result = std::vector<UnitPulse*>();
+		std::vector<IUnit*> result;
 		result.push_back(this);
 		return result; 
 	}

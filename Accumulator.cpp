@@ -19,37 +19,46 @@ namespace Graph
 		{
 			std::lock_guard<std::mutex> synchronise(mutex);
 
-			IPulse* delete_buffer = value;
-
-			if (satisfied)
+			if (value == NULL)
 			{
-				IPulse* open_pulse = pulse.open();
-
-				value = *value + *open_pulse;
-
-				delete open_pulse;
+				std::vector<Graph::IPulse*> pulses;
+				pulses.push_back(&pulse);
+				value = new Graph::Pulse(false, pulses);
 			}
 			else
 			{
-				value = *value + pulse;
+				IPulse* delete_buffer = value;
 
-				if (value->type == IPulse::PulseType::UnitPulse)
+				if (satisfied)
 				{
-					satisfied = true;
-
-					delete value;
-
-					IPulse* open_me = delete_buffer->open();
 					IPulse* open_pulse = pulse.open();
 
-					value = *open_me + *open_pulse;
+					value = *value + *open_pulse;
 
-					delete open_me;
-					delete open_pulse;
+					//delete open_pulse;
 				}
-			}
+				else
+				{
+					value = *value + pulse;
 
-			delete delete_buffer;
+					if (value->type == IPulse::PulseType::UnitPulse)
+					{
+						satisfied = true;
+
+						//delete value;
+
+						IPulse* open_me = delete_buffer->open();
+						IPulse* open_pulse = pulse.open();
+
+						value = *open_me + *open_pulse;
+
+						//delete open_me;
+						//delete open_pulse;
+					}
+				}
+
+				//delete delete_buffer;
+			}
 
 			fold_count++;
 			is_ripe = fold_count == child_nodes;
@@ -88,23 +97,23 @@ namespace Graph
 					if (dynamic_cast<Graph::UnitPulse*>(value)->value == CONFLICT && !master)
 					{
 						satisfied = true;
-						delete value;
+						//delete value;
 
 						IPulse* open_me = delete_buffer->open();
 						IPulse* open_pulse = signal->open();
 
 						value = *open_me + *open_pulse;
 
-						delete open_me;
-						delete open_pulse;
+						//delete open_me;
+						//delete open_pulse;
 					}
 				}
 			}
 
-			if (delete_buffer->type != IPulse::PulseType::UnitPulse)
+			/*if (delete_buffer->type != IPulse::PulseType::UnitPulse)
 			{
 				delete delete_buffer;
-			}
+			}*/
 		}
 	}
 

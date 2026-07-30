@@ -14,7 +14,7 @@ namespace Graph
 		const int variable;
 		IUnit(State, int);
 		IUnit(IUnit*);
-		IUnit& operator=(IUnit&);
+		virtual IUnit& operator=(IUnit&);
 	};
 
 	struct IPulse
@@ -30,7 +30,7 @@ namespace Graph
 		virtual IPulse* operator+(IPulse&);
 		virtual bool operator==(IPulse&);
 		virtual IPulse* open();
-		virtual std::vector <Graph::UnitPulse*> getUnits();
+		virtual std::vector <Graph::IUnit*> getUnits();
 		virtual std::vector <Graph::IPulse*> getPulses();
 		virtual std::vector<IUnit> getVariables();
 		virtual std::string print();
@@ -45,7 +45,7 @@ namespace Graph
 		IPulse* operator+(IPulse&);
 		IPulse* open();
 		bool operator==(IPulse&);
-		std::vector <Graph::UnitPulse*> getUnits();
+		std::vector <Graph::IUnit*> getUnits();
 		std::vector <Graph::IPulse*> getPulses();
 		std::vector<IUnit> getVariables();
 		std::string print();
@@ -64,7 +64,7 @@ namespace Graph
 		IPulse* open();
 		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
-		std::vector <Graph::UnitPulse*> getUnits();
+		std::vector <Graph::IUnit*> getUnits();
 		std::vector <Graph::IPulse*> getPulses();
 		std::vector<IUnit> getVariables();
 		std::string print();
@@ -84,7 +84,7 @@ namespace Graph
 		IPulse* open();
 		IPulse* operator+(IPulse&);
 		bool operator==(IPulse&);
-		std::vector <Graph::UnitPulse*> getUnits();
+		std::vector <Graph::IUnit*> getUnits();
 		std::vector <Graph::IPulse*> getPulses();
 		std::vector<IUnit> getVariables();
 		std::string print();
