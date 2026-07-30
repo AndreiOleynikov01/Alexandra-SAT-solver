@@ -315,6 +315,7 @@ namespace Graph
 							/*else
 							{
 								delete intermidiate;
+
 							}*/
 						}
 					}
