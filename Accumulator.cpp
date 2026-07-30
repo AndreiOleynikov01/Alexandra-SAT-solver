@@ -2,7 +2,7 @@
 
 namespace Graph
 {
-	Accumulator::AccNode::AccNode() : master(false), signals(), next_node(NULL), child_nodes(0), fold_count(0), intermidiate_value() {}
+	Accumulator::AccNode::AccNode() : master(false), satisfied(false),  next_node(NULL), child_nodes(0), fold_count(0), value(NULL) {}
 
 	void Accumulator::AccNode::add_child()
 	{
@@ -19,19 +19,43 @@ namespace Graph
 		{
 			std::lock_guard<std::mutex> synchronise(mutex);
 
-			if (intermidiate_value == NULL)
+			IPulse* delete_buffer = value;
+
+			if (satisfied)
 			{
-				intermidiate_value = new Pulse(!master, signals);
+				IPulse* open_pulse = pulse.open();
+
+				value = *value + *open_pulse;
+
+				delete open_pulse;
+			}
+			else
+			{
+				value = *value + pulse;
+
+				if (value->type == IPulse::PulseType::UnitPulse)
+				{
+					satisfied = true;
+
+					delete value;
+
+					IPulse* open_me = delete_buffer->open();
+					IPulse* open_pulse = pulse.open();
+
+					value = *open_me + *open_pulse;
+
+					delete open_me;
+					delete open_pulse;
+				}
 			}
 
-			IPulse* new_value = *intermidiate_value + pulse;
-			//delete intermidiate_value;
-			intermidiate_value = new_value;
+			delete delete_buffer;
+
 			fold_count++;
 			is_ripe = fold_count == child_nodes;
 		}
 
-		std::cout << "intermidiate value at parent: " << intermidiate_value->print() << std::endl;
+		std::cout << "intermidiate value at parent: " << value->print() << std::endl;
 
 		if (is_ripe)
 		{
@@ -43,48 +67,44 @@ namespace Graph
 	{
 		std::lock_guard<std::mutex> synchronise(mutex);
 
-		bool ignore = false;
-		if (signal->variable != 0 && signal->variable != 1)
+		if (value == NULL)
 		{
-			for (IPulse* s : signals)
-			{
-				UnitPulse* up = dynamic_cast<UnitPulse*>(s);
-				if ((up->value == CONFLICT) || (up->variable == signal->variable && up->value == signal->value))
-				{
-					ignore = true;
-				}
-				else if (up->variable == signal->variable && up->value != signal->value)
-				{
-					signals.erase(signals.begin());
-					signals.push_back(new UnitPulse(CONFLICT, 0));
-					ignore = true;
-				}
-			}
+			value = signal;
 		}
 		else
 		{
-			if (!master)
+			IPulse* delete_buffer = value;
+
+			if (satisfied)
 			{
-				ignore = true;
+				value = *value + *signal->open();
 			}
 			else
 			{
-				if ((signal->variable == 0 && signal->value == TRUE))
-				{
-					signals.erase(signals.begin());
-					signals.push_back(new UnitPulse(CONFLICT, 0));
-				}
-				ignore = true;
-			}
-		}
+				value = *value + *signal;
 
-		if (ignore)
-		{
-			delete signal;
-		}
-		else
-		{
-			signals.push_back(signal);
+				if (value->type == IPulse::PulseType::UnitPulse)
+				{
+					if (dynamic_cast<Graph::UnitPulse*>(value)->value == CONFLICT && !master)
+					{
+						satisfied = true;
+						delete value;
+
+						IPulse* open_me = delete_buffer->open();
+						IPulse* open_pulse = signal->open();
+
+						value = *open_me + *open_pulse;
+
+						delete open_me;
+						delete open_pulse;
+					}
+				}
+			}
+
+			if (delete_buffer->type != IPulse::PulseType::UnitPulse)
+			{
+				delete delete_buffer;
+			}
 		}
 	}
 
@@ -99,16 +119,15 @@ namespace Graph
 			std::cout << "starting folding at master: " << master << std::endl;
 			std::lock_guard<std::mutex> synchronise(mutex);
 
-			if (intermidiate_value == NULL)
+			IPulse* intermidiate_value;
+
+			if (!master)
 			{
-				if (signals.size() == 1)
-				{
-					intermidiate_value = signals.front();
-				}
-				else
-				{
-					intermidiate_value = new Pulse(!master, signals);
-				}
+				intermidiate_value = value->negate();
+			}
+			else
+			{
+				intermidiate_value = value;
 			}
 
 			std::cout << "intermidiate value: " << intermidiate_value->print() << std::endl;
@@ -122,7 +141,7 @@ namespace Graph
 
 	IPulse* Accumulator::AccNode::get_result()
 	{
-		return intermidiate_value;
+		return value;
 	}
 
 	Accumulator::Accumulator() : mutex(), accNodes(), master_pointer(NULL) {}

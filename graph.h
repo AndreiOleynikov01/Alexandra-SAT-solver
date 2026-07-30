@@ -98,8 +98,8 @@ namespace Graph
 		{
 			std::mutex mutex;
 			bool master;
-			std::vector<IPulse*> signals;
-			IPulse* intermidiate_value;
+			bool satisfied;
+			IPulse* value;
 			AccNode* next_node;
 			int child_nodes;
 			int fold_count;
