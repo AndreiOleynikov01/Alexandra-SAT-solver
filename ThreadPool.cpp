@@ -51,16 +51,12 @@ namespace Utilities
 
 			tasks_completed++;
 		}
-		std::cout << "tasks completed: " << tasks_completed << std::endl;
-		std::cout << "tasks reported: " << tasks_reported << std::endl;
-		std::cout << "tasks in queue: " << tasks.size() << std::endl;
 		cv.notify_all();
 	}
 
 	void ThreadPool::initialise(int number_of_threads)
 	{
 		thread_count = number_of_threads;
-		std::cout << "number of thread: " << thread_count << std::endl;;
 
 		for (int i = 1; i <= thread_count; i++)
 		{

@@ -105,7 +105,6 @@ namespace Alexandra
 
 				nodes[node_index] = vertice;
 
-				std::cout << nodes[node_index]->node->me << std::endl;
 			}
 			else
 			{
@@ -121,7 +120,6 @@ namespace Alexandra
 		{
 			std::string line;
 			std::getline(file, line);
-			std::cout << "line :" << line << std::endl;
 			int node_index;
 
 			try
@@ -137,7 +135,6 @@ namespace Alexandra
 
 			nodes[node_index]->set_node(new Graph::NVariable(node_index, &accumulator));
 		
-			std::cout << nodes[node_index]->node->me << std::endl;
 		}
 	}
 
@@ -147,7 +144,6 @@ namespace Alexandra
 		{
 			std::string line;
 			std::getline(file, line);
-			std::cout << "line :" << line << std::endl;
 			std::stringstream stream(line);
 
 			int node_index;
@@ -182,8 +178,6 @@ namespace Alexandra
 			Graph::NLatch* latch = new Graph::NLatch(node_index, next_state, node_next_state, &accumulator);
 
 			nodes[node_index]->set_node(latch);
-
-			std::cout << nodes[node_index]->node->me << std::endl;
 		}
 	}
 
@@ -197,7 +191,6 @@ namespace Alexandra
 			{
 				std::string line;
 				std::getline(file, line);
-				std::cout << "line :" << line << std::endl;
 				int index;
 
 				try 
@@ -269,7 +262,6 @@ namespace Alexandra
 		{
 			std::string line;
 			std::getline(file, line);
-			std::cout << "line :" << line << std::endl;
 			std::stringstream stream(line);
 
 			std::string node_token;
@@ -314,7 +306,6 @@ namespace Alexandra
 
 			nodes[node_index]->set_node(node);
 
-			std::cout << nodes[node_index]->node->me << std::endl;
 		}
 	}
 

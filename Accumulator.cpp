@@ -19,6 +19,11 @@ namespace Graph
 		{
 			std::lock_guard<std::mutex> synchronise(mutex);
 
+			std::cout << pulse.print() << " is added";
+			if (value != NULL)
+				std::cout << " to " << value->print();
+			std::cout << std::endl;
+
 			if (value == NULL)
 			{
 				std::vector<Graph::IPulse*> pulses;
@@ -64,7 +69,7 @@ namespace Graph
 			is_ripe = fold_count == child_nodes;
 		}
 
-		std::cout << "intermidiate value at parent: " << value->print() << std::endl;
+		std::cout << "new value is " << value->print() << std::endl;
 
 		if (is_ripe)
 		{
@@ -75,6 +80,12 @@ namespace Graph
 	void Accumulator::AccNode::add_pulse(UnitPulse* signal)
 	{
 		std::lock_guard<std::mutex> synchronise(mutex);
+
+		std::cout << signal->print() << " is reported";
+
+		if (value != NULL)
+			std::cout << " to " << value->print();
+		std::cout << std::endl;
 
 		if (value == NULL)
 		{
@@ -115,6 +126,8 @@ namespace Graph
 				delete delete_buffer;
 			}*/
 		}
+
+		std::cout << "new value is " << value->print() <<std::endl;
 	}
 
 	void Accumulator::AccNode::add_node(AccNode* node)
@@ -125,7 +138,6 @@ namespace Graph
 	void Accumulator::AccNode::fold()
 	{
 		{
-			std::cout << "starting folding at master: " << master << std::endl;
 			std::lock_guard<std::mutex> synchronise(mutex);
 
 			IPulse* intermidiate_value;
@@ -138,8 +150,6 @@ namespace Graph
 			{
 				intermidiate_value = value;
 			}
-
-			std::cout << "intermidiate value: " << intermidiate_value->print() << std::endl;
 
 			if (!master)
 			{

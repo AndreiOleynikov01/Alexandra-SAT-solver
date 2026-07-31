@@ -6,8 +6,6 @@ namespace Graph
 	
 	void Propagate::operator()()
 	{
-
-		std::cout << "starting propagation" << std::endl;
 		target->propagate(sat_trace, latch_trace);
 	}
 }

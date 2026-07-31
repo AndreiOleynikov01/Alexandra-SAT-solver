@@ -7,7 +7,6 @@ namespace Graph
 	void NLatch::propagate(Utilities::Stack sat_trace, Utilities::Stack latch_trace)
 	{
 
-		std::cout << me << " " << next_state << " " << fanin << std::endl;
 		bool visited = false;
 		Utilities::Stack::Entry* iterator = latch_trace.top_entry();
 
@@ -26,6 +25,7 @@ namespace Graph
 
 		if (visited)
 		{
+
 			if ((sat_trace.top() == me + 1))
 			{
 				sat_trace.pop();
