@@ -44,11 +44,30 @@ namespace Graph
 				left_padding.push_back(new Graph::UnitPulse(ANY, ru.variable));
 			}
 		}
-		Graph::Pulse left_padding_pulse(false, std::vector<IPulse*>(), left_padding);
-		Graph::IPulse* left_entry = *left.negate()+left_padding_pulse;
 
-		Graph::Pulse right_padding_pulse(false, std::vector<IPulse*>(), right_padding);
-		Graph::IPulse* right_entry = *left.negate() + right_padding_pulse;
+		Graph::IPulse* left_entry;
+		if (!left_padding.empty())
+		{
+			Graph::Pulse left_padding_pulse(false, std::vector<IPulse*>(), left_padding);
+			left_entry = *left.negate()+left_padding_pulse;
+		}
+		else
+		{
+			left_entry = left.negate();
+		}
+
+		Graph::IPulse* right_entry;
+		if (!right_padding.empty())
+		{
+			Graph::Pulse right_padding_pulse(false, std::vector<IPulse*>(), right_padding);
+			right_entry = *right.negate() + right_padding_pulse;
+		}
+		else
+		{
+			right_entry = right.negate();
+		}
+
+
 
 		entries.push_back(left_entry);
 		entries.push_back(right_entry);

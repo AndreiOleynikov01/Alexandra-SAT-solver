@@ -9,12 +9,11 @@ namespace Graph
 		if ((sat_trace.top() == me + 1))
 		{
 			sat_trace.pop();
-			accumulator->accumulate(sat_trace, me, true);
+			accumulator->accumulate(sat_trace, me, false);
 		}
 		else
 		{
-
-			accumulator->accumulate(sat_trace, me, false);
+			accumulator->accumulate(sat_trace, me, true);
 		}
 	}
 }

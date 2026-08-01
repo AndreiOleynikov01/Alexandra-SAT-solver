@@ -169,9 +169,9 @@ namespace Graph
 	{
 		std::lock_guard<std::mutex> synchronise(mutex);
 
-		if (accNodes.contains(id))
+		if (accNodes.contains(id->value))
 		{
-			return accNodes[id];
+			return accNodes[id->value];
 		}
 		return NULL;
 	}
@@ -186,7 +186,7 @@ namespace Graph
 			master_pointer = id;
 		}
 
-		accNodes[id] = node;
+		accNodes[id->value] = node;
 	}
 
 	void Accumulator::accumulate(Utilities::Stack sat_trace, int variable, bool state)
@@ -198,6 +198,7 @@ namespace Graph
 		AccNode* leaf_node = NULL;
 
 		Utilities::Stack::Entry* iterator = sat_trace.top_entry();
+		std::cout << variable << " sat trace: " << iterator->value<<std::endl;
 
 		bool complete = false;
 
@@ -246,7 +247,7 @@ namespace Graph
 			}
 		}
 		Utilities::ThreadPool::wait_until_done();
-		return accNodes[master_pointer]->get_result();
+		return accNodes[master_pointer -> value]->get_result();
 	}
 
 	IPulse* Accumulator::solve(std::map<int, bool>& assumption)

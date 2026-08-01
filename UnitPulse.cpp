@@ -26,10 +26,10 @@ namespace Graph
 				}
 				else
 				{
-					std::vector<IPulse*> pulses;
+					std::vector<UnitPulse*> pulses;
 					pulses.push_back(this);
-					pulses.push_back(&pulse);
-					return new Graph::Pulse(false, pulses);
+					pulses.push_back(dynamic_cast<UnitPulse*>(&pulse));
+					return new Graph::Pulse(false, std::vector<IPulse*> (), pulses);
 				}
 			}
 			else

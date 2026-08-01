@@ -116,7 +116,7 @@ namespace Graph
 
 		Utilities::Stack::Entry* master_pointer;
 		std::mutex mutex;
-		std::map<Utilities::Stack::Entry*, AccNode*> accNodes;
+		std::map<int, AccNode*> accNodes;
 
 		AccNode* get_node(Utilities::Stack::Entry*);
 		void add_node(Utilities::Stack::Entry*, AccNode*);
