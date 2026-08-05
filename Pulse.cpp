@@ -178,9 +178,6 @@ namespace Graph
 
 				if (pulse.type==PulseType::Pulse && pulse.isNegative() == negative)
 				{
-					std::cout << pulse.print() << std::endl;
-					std::vector<IUnit*> temp_buffer = pulse.getUnits();
-					std::cout << temp_buffer.size() << std::endl;
 					for (IUnit* u : pulse.getUnits())
 					{
 						left_unit_buffer.push_back(dynamic_cast<Graph::UnitPulse*>(u));
@@ -214,22 +211,27 @@ namespace Graph
 					{
 						for (int j = 0; j < left_unit_buffer.size(); j++)
 						{
-							if (left_unit_buffer[j] != NULL && *dynamic_cast<IPulse*>(right_unit_buffer[i]) == *left_unit_buffer[j])
+							std::cout << right_unit_buffer[i]->print() << " + " << left_unit_buffer[j]->print() << std::endl;
+							if ((left_unit_buffer[j] != NULL) && (right_unit_buffer[i]->variable == left_unit_buffer[j]->variable))
 							{
 								Graph::UnitPulse* intermidiate = dynamic_cast<Graph::UnitPulse*>(*right_unit_buffer[i] + *left_unit_buffer[j]);
 								if (intermidiate->value == CONFLICT)
 								{
+									std::cout << intermidiate->print() << std::endl;
 									if (!negative && !pulse.isNegative())
 									{
 										return intermidiate;
 									}
 									else
 									{
+
+										std::cout << "this shouldn't happen" << std::endl;
 										return new Graph::AggregatedPulse(false, *dynamic_cast<Pulse*>(this), dynamic_cast<Pulse&>(pulse));
 									}
 								}
 								else
 								{
+
 									unit_buffer.push_back(intermidiate);
 								}
 								left_unit_buffer[j] = NULL;
@@ -509,8 +511,6 @@ namespace Graph
 
 	}
 
-	Pulse::Pulse(bool negative) : IPulse(PulseType::Pulse), negative(negative), units(), pulses() {}
-
 	Pulse::Pulse(bool negative,  std::vector<IPulse*> pulses, std::vector<Graph::UnitPulse*> units) : IPulse(PulseType::Pulse), negative(negative), units(units), pulses(pulses) {}
 
 	IPulse* Pulse::open()
@@ -571,7 +571,7 @@ namespace Graph
 		for (int i = 0; i < units.size(); i++)
 		{
 			result += units[i]->print(); 
-			if (i < pulses.size() - 1 || !pulses.empty())
+			if (i < units.size() - 1 || !pulses.empty())
 			{
 				result += ", ";
 			}

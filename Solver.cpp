@@ -100,8 +100,9 @@ namespace Alexandra
 				}
 
 
-				Graph::NNot* not_node = new Graph::NNot(node_index, nodes[node_index-1]);
+				Graph::NNot* not_node = new Graph::NNot(node_index, nodes[node_index-1], &accumulator);
 				vertice->set_node(not_node);
+				nodes[node_index-1]->addOccurance();
 
 				nodes[node_index] = vertice;
 
@@ -134,7 +135,6 @@ namespace Alexandra
 			add_node(node_index);
 
 			nodes[node_index]->set_node(new Graph::NVariable(node_index, &accumulator));
-		
 		}
 	}
 
@@ -175,9 +175,15 @@ namespace Alexandra
 
 			node_next_state = nodes[next_state];
 
+			node_next_state->addOccurance();
+
 			Graph::NLatch* latch = new Graph::NLatch(node_index, next_state, node_next_state, &accumulator);
 
 			nodes[node_index]->set_node(latch);
+
+			//debug 
+			std::cout << next_state << " occurs " << node_next_state->getOccurances() << " times" << std::endl;
+			std::cout << node_index << " occurs " << nodes[node_index]->getOccurances() << " times" << std::endl;
 		}
 	}
 
@@ -302,10 +308,16 @@ namespace Alexandra
 				add_node(left_fanin);
 			}
 
-			Graph::NAnd* node = new Graph::NAnd(node_index, nodes[left_fanin], nodes[right_fanin]);
+			nodes[left_fanin]->addOccurance();
+			nodes[right_fanin]->addOccurance();
+
+			Graph::NAnd* node = new Graph::NAnd(node_index, nodes[left_fanin], nodes[right_fanin],&accumulator);
 
 			nodes[node_index]->set_node(node);
 
+			//debug 
+			std::cout<<left_fanin<<" occurs " << nodes[left_fanin]->getOccurances()<<" times" << std::endl;
+			std::cout << right_fanin << " occurs " << nodes[right_fanin]->getOccurances() << " times" << std::endl;
 		}
 	}
 

@@ -59,7 +59,6 @@ namespace Graph
 		std::vector<IPulse*> pulses;
 		bool const negative;
 	public:
-		Pulse(bool = true);
 		Pulse(bool = true, std::vector<IPulse*> = std::vector<IPulse*>(), std::vector<Graph::UnitPulse*> = std::vector<Graph::UnitPulse*>());
 		IPulse* open();
 		IPulse* operator+(IPulse&);
@@ -99,12 +98,13 @@ namespace Graph
 			std::mutex mutex;
 			bool master;
 			bool satisfied;
+			bool negative;
 			IPulse* value;
-			AccNode* next_node;
+			std::vector<AccNode*> next_node;
 			int child_nodes;
 			int fold_count;
 
-			AccNode();
+			AccNode(bool);
 			void add_child();
 			void set_master();
 			void ripe(IPulse&);
@@ -123,6 +123,7 @@ namespace Graph
 	public:
 		Accumulator();
 		void accumulate(Utilities::Stack, int, bool);
+		void accumulate(Utilities::Stack);
 		IPulse* solve();
 		IPulse* solve(std::map<int, bool>&);
 
@@ -141,6 +142,10 @@ namespace Graph
 	public:
 		void virtual propagate(Utilities::Stack, Utilities::Stack);
 
+		int virtual getOccurances();
+
+		void virtual addOccurance();
+
 		Node(int);
 
 		const int me;
@@ -152,26 +157,47 @@ namespace Graph
 	public:
 		void propagate(Utilities::Stack, Utilities::Stack);
 
+		int getOccurances();
+
+		void addOccurance();
+
 		NVariable(int, Accumulator*);
 	};
 
 	class NAnd : public  Node
 	{
+		std::mutex mutex;
+		bool visited;
+		Accumulator* accumulator;
+		int occurances;
+
 		Node* left;
 		Node* right;
 	public:
 		void propagate(Utilities::Stack, Utilities::Stack);
 
-		NAnd(int, Node*, Node*);
+		int getOccurances();
+
+		void addOccurance();
+
+		NAnd(int, Node*, Node*,Accumulator*);
 	};
 
 	class NNot : public virtual Node
 	{
+		std::mutex mutex;
+		bool visited;
+		Accumulator* accumulator;
+
 		Node* fanin;
 	public:
 		void propagate(Utilities::Stack, Utilities::Stack);
 
-		NNot(int, Node*);
+		int getOccurances();
+
+		void addOccurance();
+
+		NNot(int, Node*,Accumulator*);
 	};
 
 	class NLatch : public virtual Node
@@ -182,6 +208,10 @@ namespace Graph
 	public:
 		void propagate(Utilities::Stack, Utilities::Stack);
 
+		int getOccurances();
+
+		void addOccurance();
+
 		NLatch(int, int, Node*, Accumulator*);
 	};
 
@@ -190,6 +220,10 @@ namespace Graph
 		Accumulator* accumulator;
 	public:
 		void propagate(Utilities::Stack, Utilities::Stack);
+
+		int getOccurances();
+
+		void addOccurance();
 
 		NTrue(Accumulator*);
 	};
@@ -200,15 +234,24 @@ namespace Graph
 	public:
 		void propagate(Utilities::Stack, Utilities::Stack);
 
+		int getOccurances();
+
+		void addOccurance();
+
 		NFalse(Accumulator*);
 	};
 
 	class NodeHandler : public virtual Node
 	{
+		int occurances;
 	public:
 		Node* node;
 
 		void propagate(Utilities::Stack, Utilities::Stack);
+
+		int getOccurances();
+
+		void addOccurance();
 
 		NodeHandler();
 

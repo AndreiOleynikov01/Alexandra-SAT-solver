@@ -4,6 +4,16 @@ namespace Graph
 {
 	NLatch::NLatch(int me, int next_state, Node* next_state_function, Accumulator* accumulator) : Node(me), next_state(next_state), fanin(next_state_function), accumulator(accumulator) {}
 
+	int NLatch::getOccurances() 
+	{
+		return -1;
+	}
+
+	void NLatch::addOccurance()
+	{
+		return;
+	}
+
 	void NLatch::propagate(Utilities::Stack sat_trace, Utilities::Stack latch_trace)
 	{
 
@@ -25,16 +35,16 @@ namespace Graph
 
 		if (visited)
 		{
-			if ((sat_trace.top() == me + 1))
-			{
-				sat_trace.pop();
-				accumulator->accumulate(sat_trace, me, false);
-			}
-			else
-			{
+			//if ((sat_trace.top() == me + 1))
+			//{
+			//	sat_trace.pop();
+			//	accumulator->accumulate(sat_trace, me, false);
+			//}
+			//else
+			//{
 
 				accumulator->accumulate(sat_trace, me, true);
-			}
+			//}
 		}
 		else
 		{

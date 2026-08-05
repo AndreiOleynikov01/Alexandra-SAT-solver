@@ -2,7 +2,7 @@
 
 namespace Graph
 {
-	Accumulator::AccNode::AccNode() : master(false), satisfied(false),  next_node(NULL), child_nodes(0), fold_count(0), value(NULL) {}
+	Accumulator::AccNode::AccNode(bool negative) : master(false), satisfied(false), negative(negative), child_nodes(0), fold_count(0), value(NULL) {}
 
 	void Accumulator::AccNode::add_child()
 	{
@@ -105,7 +105,7 @@ namespace Graph
 
 				if (value->type == IPulse::PulseType::UnitPulse)
 				{
-					if (dynamic_cast<Graph::UnitPulse*>(value)->value == CONFLICT && !master)
+					if (dynamic_cast<Graph::UnitPulse*>(value)->value == CONFLICT && (!master||!negative))
 					{
 						satisfied = true;
 						//delete value;
@@ -132,17 +132,32 @@ namespace Graph
 
 	void Accumulator::AccNode::add_node(AccNode* node)
 	{
-		next_node = node;
+		bool found = false;
+		for (AccNode* p : next_node)
+		{
+			if (p == node)
+			{
+				found = true;
+			}
+		}
+		if (!found)
+		{
+			next_node.push_back(node);
+		}
 	}
 
 	void Accumulator::AccNode::fold()
 	{
+		IPulse* intermidiate_value;
 		{
 			std::lock_guard<std::mutex> synchronise(mutex);
 
-			IPulse* intermidiate_value;
+			if (value == NULL)
+			{
+				value = new Pulse(negative);
+			}
 
-			if (!master)
+			if (!master && negative)
 			{
 				intermidiate_value = value->negate();
 			}
@@ -150,12 +165,17 @@ namespace Graph
 			{
 				intermidiate_value = value;
 			}
-
-			if (!master)
+		}
+		std::cout<<"folding "<<intermidiate_value->print()<<std::endl;
+		
+		if (!master)
+		{
+			for (AccNode* node : next_node)
 			{
-				next_node->ripe(*intermidiate_value);
+				node->ripe(*intermidiate_value);
 			}
 		}
+	
 	}
 
 	IPulse* Accumulator::AccNode::get_result()
@@ -185,7 +205,7 @@ namespace Graph
 			node->set_master();
 			master_pointer = id;
 		}
-
+		std::cout << id->value << " is created" << std::endl;
 		accNodes[id->value] = node;
 	}
 
@@ -198,16 +218,15 @@ namespace Graph
 		AccNode* leaf_node = NULL;
 
 		Utilities::Stack::Entry* iterator = sat_trace.top_entry();
-		std::cout << variable << " sat trace: " << iterator->value<<std::endl;
 
-		bool complete = false;
-
-		while (!complete && iterator != NULL)
+		while (iterator != NULL)
 		{
+
+			std::cout << variable << " sat trace: " << iterator->value << std::endl;
 			current_node = get_node(iterator);
 			if (current_node == NULL)
 			{
-				current_node = new AccNode();
+				current_node = new AccNode(iterator->value %2 == 1);
 				add_node(iterator, current_node);
 
 			}
@@ -224,14 +243,36 @@ namespace Graph
 				prev_node->add_node(current_node);
 			}
 
-			if (current_node->next_node == NULL)
+			prev_node = current_node;
+
+			iterator = iterator->prev;
+		}
+	}
+
+	void Accumulator::accumulate(Utilities::Stack sat_trace) 
+	{
+		Utilities::Stack::Entry* iterator = sat_trace.top_entry();
+		AccNode* current_node;
+		AccNode* prev_node = NULL;
+
+		while (iterator != NULL)
+		{
+			std::cout << sat_trace.top()<<" sat trace: " << iterator->value << std::endl;
+			current_node = get_node(iterator);
+			if (current_node == NULL)
 			{
-				prev_node = current_node;
+				current_node = new AccNode(iterator->value%2 == 1);
+				add_node(iterator, current_node);
+
 			}
-			else
+
+			if (prev_node != NULL)
 			{
-				complete = true;
+				current_node->add_child();
+				prev_node->add_node(current_node);
 			}
+
+			prev_node = current_node;
 
 			iterator = iterator->prev;
 		}
@@ -239,6 +280,15 @@ namespace Graph
 
 	IPulse* Accumulator::solve()
 	{
+		for (auto p = accNodes.begin(); p != accNodes.end(); p++)
+		{
+			if (p->second->child_nodes == 0)
+			{
+				std::cout << p->first << " is empty " << (p->second->get_result() == NULL) << std::endl;
+			}
+			
+
+		}
 		for (auto p = accNodes.begin(); p != accNodes.end(); p++)
 		{
 			if (p->second->child_nodes == 0)
