@@ -21,4 +21,6 @@ namespace Graph
 	bool IPulse::isNegative() { return false; }
 
 	Graph::IPulse* IPulse::negate() { return NULL; }
+
+	int Graph::IPulse::getWeight() { return 0; }
 }

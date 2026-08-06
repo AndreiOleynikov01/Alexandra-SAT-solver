@@ -36,6 +36,7 @@ namespace Graph
 		virtual std::string print();
 		virtual bool isNegative();
 		virtual IPulse* negate();
+		virtual int getWeight();
 	};
 
 	class UnitPulse : public virtual IPulse, public virtual IUnit
@@ -51,6 +52,7 @@ namespace Graph
 		std::string print();
 		bool isNegative();
 		IPulse* negate();
+		virtual int getWeight();
 	};
 
 	class Pulse : public virtual IPulse
@@ -69,6 +71,7 @@ namespace Graph
 		std::string print();
 		bool isNegative();
 		IPulse* negate();
+		virtual int getWeight();
 	};
 
 	class AggregatedPulse : public virtual IPulse
@@ -89,6 +92,7 @@ namespace Graph
 		std::string print();
 		bool isNegative();
 		IPulse* negate();
+		virtual int getWeight();
 	};
 
 	class Accumulator
@@ -96,6 +100,9 @@ namespace Graph
 		static struct AccNode
 		{
 			std::mutex mutex;
+
+			int id;
+
 			bool master;
 			bool satisfied;
 			bool negative;
@@ -104,12 +111,12 @@ namespace Graph
 			int child_nodes;
 			int fold_count;
 
-			AccNode(bool);
+			AccNode(int,bool);
 			void add_child();
 			void set_master();
 			void ripe(IPulse&);
 			void add_pulse(UnitPulse*);
-			void add_node(AccNode*);
+			bool add_node(AccNode*);
 			void fold();
 			IPulse* get_result();
 		};

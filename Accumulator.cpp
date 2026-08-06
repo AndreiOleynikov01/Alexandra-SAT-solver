@@ -2,7 +2,7 @@
 
 namespace Graph
 {
-	Accumulator::AccNode::AccNode(bool negative) : master(false), satisfied(false), negative(negative), child_nodes(0), fold_count(0), value(NULL) {}
+	Accumulator::AccNode::AccNode(int id,bool negative) :id(id), master(false), satisfied(false), negative(negative), child_nodes(0), fold_count(0), value(NULL) {}
 
 	void Accumulator::AccNode::add_child()
 	{
@@ -69,7 +69,8 @@ namespace Graph
 			is_ripe = fold_count == child_nodes;
 		}
 
-		std::cout << "new value is " << value->print() << std::endl;
+		std::cout << " new value at "<< id<<"is " << value->print() << std::endl;
+		std::cout << "folds completed: " << fold_count << "/" << child_nodes << std::endl;
 
 		if (is_ripe)
 		{
@@ -105,7 +106,7 @@ namespace Graph
 
 				if (value->type == IPulse::PulseType::UnitPulse)
 				{
-					if (dynamic_cast<Graph::UnitPulse*>(value)->value == CONFLICT && (!master||!negative))
+					if (dynamic_cast<Graph::UnitPulse*>(value)->value == CONFLICT && (negative))
 					{
 						satisfied = true;
 						//delete value;
@@ -130,7 +131,7 @@ namespace Graph
 		std::cout << "new value is " << value->print() <<std::endl;
 	}
 
-	void Accumulator::AccNode::add_node(AccNode* node)
+	bool Accumulator::AccNode::add_node(AccNode* node)
 	{
 		bool found = false;
 		for (AccNode* p : next_node)
@@ -144,6 +145,7 @@ namespace Graph
 		{
 			next_node.push_back(node);
 		}
+		return !found;
 	}
 
 	void Accumulator::AccNode::fold()
@@ -172,6 +174,7 @@ namespace Graph
 		{
 			for (AccNode* node : next_node)
 			{
+				std::cout << "calling ripe method"<<std::endl;
 				node->ripe(*intermidiate_value);
 			}
 		}
@@ -226,7 +229,7 @@ namespace Graph
 			current_node = get_node(iterator);
 			if (current_node == NULL)
 			{
-				current_node = new AccNode(iterator->value %2 == 1);
+				current_node = new AccNode(iterator->value, iterator->value %2 == 1);
 				add_node(iterator, current_node);
 
 			}
@@ -239,8 +242,8 @@ namespace Graph
 
 			if (prev_node != NULL)
 			{
-				current_node->add_child();
-				prev_node->add_node(current_node);
+				if (prev_node->add_node(current_node))
+					current_node->add_child();
 			}
 
 			prev_node = current_node;
@@ -261,15 +264,15 @@ namespace Graph
 			current_node = get_node(iterator);
 			if (current_node == NULL)
 			{
-				current_node = new AccNode(iterator->value%2 == 1);
+				current_node = new AccNode(iterator->value, iterator->value%2 == 1);
 				add_node(iterator, current_node);
 
 			}
 
 			if (prev_node != NULL)
 			{
-				current_node->add_child();
-				prev_node->add_node(current_node);
+				if (prev_node->add_node(current_node))
+					current_node->add_child();
 			}
 
 			prev_node = current_node;
@@ -282,12 +285,8 @@ namespace Graph
 	{
 		for (auto p = accNodes.begin(); p != accNodes.end(); p++)
 		{
-			if (p->second->child_nodes == 0)
-			{
-				std::cout << p->first << " is empty " << (p->second->get_result() == NULL) << std::endl;
-			}
-			
-
+			std::cout << p->first << "has " << p->second->child_nodes << " children and ";
+			std::cout << p->second->next_node.size() << " parents"<<std::endl;
 		}
 		for (auto p = accNodes.begin(); p != accNodes.end(); p++)
 		{
