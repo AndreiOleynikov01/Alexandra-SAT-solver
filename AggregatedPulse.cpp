@@ -6,8 +6,6 @@ namespace Graph
 
 	AggregatedPulse::AggregatedPulse(bool negative, Graph::Pulse& left, Graph::Pulse& right) : IPulse(PulseType::AggregatedPulse), negative(negative), variables(), entries()
 	{
-		std::cout << "left: " << left.print() << std::endl;
-		std::cout << "right: " << right.print() << std::endl;
 		std::vector<IUnit> left_variables = left.getVariables();
 		std::vector<IUnit> right_variables = right.getVariables();
 		std::vector<Graph::UnitPulse*>right_padding, left_padding;
@@ -364,9 +362,7 @@ namespace Graph
 						else
 						{
 							right_entries.push_back(entry->negate());
-
 						}
-
 					}
 
 					for (IPulse* lp : left_entries)
@@ -445,11 +441,6 @@ namespace Graph
 					}
 				}
 
-				if (getWeight() >= pow(2, variables.size()))
-				{
-					return new Graph::UnitPulse(CONFLICT, 0);
-				}
-				
 				return new AggregatedPulse(!(pulse.isNegative() && negative), variables, entries);
 			}
 		}
@@ -496,23 +487,20 @@ namespace Graph
 		
 		if (negative)
 		{
-			result += "Either";
+			result += "Either [";
 		}
 		else
 		{
-			result += "Neither";
+			result += "Neither [";
 		}
-
-		result += " [\n";
 
 		for (int i = 0; i < entries.size(); i++)
 		{
-			result += "    " + entries[i]->print();
+			result += "(" + entries[i]->print() + ")";
 			if (i < entries.size() - 1)
 			{
 				result += ", ";
 			}
-			result += "\n";
 		}
 		result += "]";
 
@@ -527,19 +515,5 @@ namespace Graph
 	Graph::IPulse* Graph::AggregatedPulse::negate()
 	{
 		return new AggregatedPulse(!negative, variables, entries);
-	}
-
-	int Graph::AggregatedPulse::getWeight()
-	{
-		int weight = 0;
-		for (IPulse* p : entries)
-		{
-			weight += p->getWeight();
-		}
-		if (!negative)
-		{
-			weight = std::pow(2, variables.size()) - weight;
-		}
-		return weight;
 	}
 }

@@ -127,9 +127,4 @@ namespace Graph
 		}
 		return new UnitPulse(new_value, this->variable);
 	}
-
-	int Graph::UnitPulse::getWeight() 
-	{
-		return (value == ANY)?(2):(1); 
-	}
 }
