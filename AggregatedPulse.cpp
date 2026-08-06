@@ -99,13 +99,24 @@ namespace Graph
 		{
 			case UnitPulse:
 			{
+				bool found;
 				Graph::UnitPulse* unit_pulse = dynamic_cast<Graph::UnitPulse*>(&pulse);
 				for (int i : this->variables)
 				{
 					if (i != unit_pulse->variable)
 					{
 						variables.push_back(i);
+						found = true;
 					}
+				}
+
+				if (!found)
+				{
+					std::vector<Graph::UnitPulse*>unit;
+					unit.push_back(dynamic_cast<Graph::UnitPulse*>(&pulse));
+					std::vector<Graph::IPulse*> pulse;
+					pulse.push_back(this);
+					return new Graph::Pulse(false, pulse, unit);
 				}
 
 				for (IPulse* entry : this->entries)

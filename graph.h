@@ -109,7 +109,7 @@ namespace Graph
 			void set_master();
 			void ripe(IPulse&);
 			void add_pulse(UnitPulse*);
-			void add_node(AccNode*);
+			bool add_node(AccNode*);
 			void fold();
 			IPulse* get_result();
 		};

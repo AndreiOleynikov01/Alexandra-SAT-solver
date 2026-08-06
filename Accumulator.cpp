@@ -130,7 +130,7 @@ namespace Graph
 		std::cout << "new value is " << value->print() <<std::endl;
 	}
 
-	void Accumulator::AccNode::add_node(AccNode* node)
+	bool Accumulator::AccNode::add_node(AccNode* node)
 	{
 		bool found = false;
 		for (AccNode* p : next_node)
@@ -144,6 +144,7 @@ namespace Graph
 		{
 			next_node.push_back(node);
 		}
+		return !found;
 	}
 
 	void Accumulator::AccNode::fold()
@@ -239,8 +240,8 @@ namespace Graph
 
 			if (prev_node != NULL)
 			{
-				current_node->add_child();
-				prev_node->add_node(current_node);
+				if (prev_node->add_node(current_node))
+					current_node->add_child();
 			}
 
 			prev_node = current_node;
@@ -268,8 +269,8 @@ namespace Graph
 
 			if (prev_node != NULL)
 			{
-				current_node->add_child();
-				prev_node->add_node(current_node);
+				if (prev_node->add_node(current_node))
+					current_node->add_child();
 			}
 
 			prev_node = current_node;
