@@ -44,7 +44,6 @@ namespace Graph
 				}
 				else
 				{
-					std::cout << "conflict no 6 " << std::endl;
 					return new UnitPulse(CONFLICT, 0);
 				}
 			}
@@ -127,5 +126,10 @@ namespace Graph
 			new_value = this->value;
 		}
 		return new UnitPulse(new_value, this->variable);
+	}
+
+	int UnitPulse::getWeight() 
+	{ 
+		return (value == ANY||variable < 2)?(2):(1); 
 	}
 }

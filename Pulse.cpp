@@ -4,21 +4,14 @@ namespace Graph
 {
 	bool Pulse::operator==(IPulse& pulse)
 	{
-		std::cout << "TRUE " << TRUE << std::endl;
-		std::cout << "FALSE " << FALSE << std::endl;
-		std::cout << "ANY " << ANY << std::endl;
-		std::cout << "CONFLICT " << CONFLICT << std::endl;
 		std::vector<IUnit> target_variables = pulse.getVariables();
 		std::vector<IUnit> variables = getVariables();
 		for (IUnit unit : variables)
 		{
 			for (IUnit target_unit : target_variables)
 			{
-				std::cout << "(" << unit.variable << " = " << unit.value << ") == (" << target_unit.variable << " = " << target_unit.value << ")" << std::endl;
-
 				if (unit.variable == target_unit.variable)
 				{
-					std::cout << "VALID" << std::endl;
 					return true;
 				}
 			}
@@ -28,8 +21,6 @@ namespace Graph
 
 	IPulse* Pulse::operator+(IPulse& pulse)
 	{
-		std::cout << "the value added to the pulse " <<print()<< " is " << pulse.print() << std::endl;
-		std::cout << (*this == pulse)<<std::endl;
 		std::vector<Graph::UnitPulse*> left_unit_buffer;
 		std::vector<Graph::IPulse*> left_pulse_buffer;
 
@@ -67,7 +58,6 @@ namespace Graph
 		{
 			if (negative && !pulse.isNegative())
 			{
-				std::cout << negative << " and " << !pulse.isNegative() << std::endl;
 				return pulse + *this;
 			}
 
@@ -84,7 +74,6 @@ namespace Graph
 			}
 			else
 			{
-				std::cout << pulse.print() << " is pushed into buffer"<<std::endl;
 				right_pulse_buffer.push(&pulse);
 			}
 
@@ -128,7 +117,6 @@ namespace Graph
 					vec.push_back(&pulse);
 					return new Pulse(false, vec);
 				}
-				std::cout << "Aggregated pulse and" << !negative << std::endl;
 				return pulse + *this;
 			}
 			break;
@@ -137,7 +125,6 @@ namespace Graph
 
 		for (auto left_iterator = left_unit_buffer.begin(); left_iterator != left_unit_buffer.end(); left_iterator++)
 		{
-			std::cout << "current operand is " << (*left_iterator)->print() << std::endl;
 			bool present = false;
 			bool found = false;
 
@@ -161,10 +148,8 @@ namespace Graph
 						{
 							if (pulse.type == UnitPulse)
 							{
-								std::cout << "gets satisfied" << std::endl;
 								satisfied = true;
 								present = true;
-								std::cout << right_unit_buffer.size() << " elements in the buffer" << std::endl;
 							}
 							else
 							{
@@ -179,7 +164,7 @@ namespace Graph
 					}
 					else
 					{
-						if (negative)
+						if (negative != pulse.isNegative())
 						{
 							if (right_unit_buffer.front()->value == ANY)
 							{
@@ -208,7 +193,6 @@ namespace Graph
 				count++;
 			}
 
-			std::cout << right_unit_buffer.size() << " elements in the buffer" << std::endl;
 			if (!found)
 			{
 				size = right_pulse_buffer.size();
@@ -226,10 +210,6 @@ namespace Graph
 
 						IPulse* intermidiate = *(*left_iterator) + *(right_pulse_buffer.front());
 
-						std::cout << "left operand is " << (*left_iterator)->print() << std::endl;
-						std::cout << "right operand is " << right_pulse_buffer.front()->print() << std::endl;
-						std::cout << "intermidiate is " << ((intermidiate == NULL) ? ("null") : (intermidiate->print())) << std::endl;
-
 						switch (intermidiate->type)
 						{
 						case UnitPulse:
@@ -244,13 +224,11 @@ namespace Graph
 								else
 								{
 									std::cout << "conflict no 3" << std::endl;
-									std::cout << intermidiate->print() << std::endl;
 									return intermidiate;
 								}
 							}
 							else
 							{
-								std::cout << unit->print()<< " is added"<<std::endl;
 								right_unit_buffer.push(unit);
 							}
 							break;
@@ -302,7 +280,6 @@ namespace Graph
 
 			if (!present)
 			{
-				std::cout << (*left_iterator)->print()<<"is not present"<<std::endl;
 				right_unit_buffer.push(*left_iterator);
 			}
 		}
@@ -318,7 +295,6 @@ namespace Graph
 
 			while (count < size)
 			{
-				std::cout << (*left_iterator)->print() << " = " << right_unit_buffer.front()->print() << std::endl;
 				if (**left_iterator == *right_unit_buffer.front())
 				{
 					intermidiate = *intermidiate + *right_unit_buffer.front();
@@ -350,7 +326,6 @@ namespace Graph
 				count++;
 			}
 
-			std::cout << "size of pulse buffer is " << right_pulse_buffer.size() << std::endl;
 			if (intermidiate->type == UnitPulse)
 			{
 				Graph::UnitPulse* unit = dynamic_cast<Graph::UnitPulse*>(intermidiate);
@@ -389,7 +364,6 @@ namespace Graph
 		}
 		else if (right_unit_buffer.size() == 1 && right_pulse_buffer.empty())
 		{
-			std::cout << "this is what happens" << std::endl;
 			return_value = right_unit_buffer.front();
 		}
 		else if (right_pulse_buffer.empty() && right_unit_buffer.empty())
@@ -524,6 +498,10 @@ namespace Graph
 
 	Graph::IPulse* Pulse::negate()
 	{
+		if (getWeight() >= std::pow(2, getVariables().size()))
+		{
+			return new Graph::UnitPulse(CONFLICT, 0);
+		}
 		if (units.empty() && pulses.size() == 1)
 		{
 			return (negative)?(pulses.front()->negate()):(pulses.front());
@@ -536,5 +514,20 @@ namespace Graph
 		{
 			return new Pulse(!negative, pulses, units);
 		}
+	}
+
+	int Pulse::getWeight() 
+	{ 
+		int result = 1;
+		for (Graph::UnitPulse* u : units)
+		{
+			result *= u->getWeight();
+		}
+		for (Graph::IPulse* p : pulses)
+		{
+			result *= p->getWeight();
+		}
+
+		return (negative)?(std::pow(2, getVariables().size()) - result):(result); 
 	}
 }

@@ -36,6 +36,7 @@ namespace Graph
 		virtual std::string print();
 		virtual bool isNegative();
 		virtual IPulse* negate();
+		virtual int getWeight();
 	};
 
 	class UnitPulse : public virtual IPulse, public virtual IUnit
@@ -51,6 +52,7 @@ namespace Graph
 		std::string print();
 		bool isNegative();
 		IPulse* negate();
+		int getWeight();
 	};
 
 	class Pulse : public virtual IPulse
@@ -69,6 +71,7 @@ namespace Graph
 		std::string print();
 		bool isNegative();
 		IPulse* negate();
+		int getWeight();
 	};
 
 	class AggregatedPulse : public virtual IPulse
@@ -88,6 +91,7 @@ namespace Graph
 		std::string print();
 		bool isNegative();
 		IPulse* negate();
+		int getWeight();
 	};
 
 	class Accumulator
