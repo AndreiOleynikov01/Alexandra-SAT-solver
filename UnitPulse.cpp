@@ -44,6 +44,7 @@ namespace Graph
 				}
 				else
 				{
+					std::cout << "conflict no 6 " << std::endl;
 					return new UnitPulse(CONFLICT, 0);
 				}
 			}

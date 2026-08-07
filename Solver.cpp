@@ -140,50 +140,50 @@ namespace Alexandra
 
 	void Solver::latches()
 	{
-		for (int i = 1; i <= number_of_latches; i++)
+		if (number_of_latches > 0)
 		{
-			std::string line;
-			std::getline(file, line);
-			std::stringstream stream(line);
-
-			int node_index;
-			int next_state;
-
-			try
+			for (int i = 1; i <= number_of_latches; i++)
 			{
-				std::string token_latch;
-				std::getline(stream, token_latch, delimiter);
-				node_index = std::stoi(token_latch);
+				std::string line;
+				std::getline(file, line);
+				std::stringstream stream(line);
 
-				std::string token_next;
-				std::getline(stream, token_next, delimiter);
-				next_state = std::stoi(token_next);
+				int node_index;
+				int next_state;
+
+				try
+				{
+					std::string token_latch;
+					std::getline(stream, token_latch, delimiter);
+					node_index = std::stoi(token_latch);
+
+					std::string token_next;
+					std::getline(stream, token_next, delimiter);
+					next_state = std::stoi(token_next);
+				}
+				catch (std::invalid_argument)
+				{
+					throw  std::invalid_argument("invalid file format");
+				}
+
+				add_node(node_index);
+
+				Graph::Node* node_next_state;
+
+				if (!nodes.contains(next_state))
+				{
+					add_node(next_state);
+				}
+
+				node_next_state = nodes[next_state];
+
+				node_next_state->addOccurance();
+
+				Graph::NLatch* latch = new Graph::NLatch(node_index, next_state, node_next_state, &accumulator);
+
+				nodes[node_index]->set_node(latch);
+
 			}
-			catch (std::invalid_argument)
-			{
-				throw  std::invalid_argument("invalid file format");
-			}
-
-			add_node(node_index);
-
-			Graph::Node* node_next_state;
-
-			if (!nodes.contains(next_state))
-			{
-				add_node(next_state);
-			}
-
-			node_next_state = nodes[next_state];
-
-			node_next_state->addOccurance();
-
-			Graph::NLatch* latch = new Graph::NLatch(node_index, next_state, node_next_state, &accumulator);
-
-			nodes[node_index]->set_node(latch);
-
-			//debug 
-			std::cout << next_state << " occurs " << node_next_state->getOccurances() << " times" << std::endl;
-			std::cout << node_index << " occurs " << nodes[node_index]->getOccurances() << " times" << std::endl;
 		}
 	}
 
@@ -315,9 +315,7 @@ namespace Alexandra
 
 			nodes[node_index]->set_node(node);
 
-			//debug 
-			std::cout<<left_fanin<<" occurs " << nodes[left_fanin]->getOccurances()<<" times" << std::endl;
-			std::cout << right_fanin << " occurs " << nodes[right_fanin]->getOccurances() << " times" << std::endl;
+			
 		}
 	}
 

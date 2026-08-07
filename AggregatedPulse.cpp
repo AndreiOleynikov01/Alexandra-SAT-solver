@@ -95,17 +95,22 @@ namespace Graph
 		std::vector<int> variables;
 		std::vector<IPulse*> entries;
 
+		std::cout << "The value added to " << print() << " is a" << pulse.type << " " << pulse.print() << std::endl;
 		switch (pulse.type) 
 		{
 			case UnitPulse:
 			{
-				bool found;
+				bool found = false;
 				Graph::UnitPulse* unit_pulse = dynamic_cast<Graph::UnitPulse*>(&pulse);
+				std::cout << "unit " << unit_pulse->print() << " is added" << std::endl;
 				for (int i : this->variables)
 				{
 					if (i != unit_pulse->variable)
 					{
 						variables.push_back(i);
+					}
+					else
+					{
 						found = true;
 					}
 				}
@@ -123,8 +128,9 @@ namespace Graph
 				{
 					IPulse* negation = entry->negate();
 					IPulse* intermidiate = *negation + pulse;
+					IPulse* control_value = *entry + pulse;
 
-					if (intermidiate->isNegative())
+					if (control_value->type == UnitPulse && dynamic_cast<Graph::UnitPulse*>(control_value)->value == CONFLICT)
 					{
 						entries.push_back(intermidiate->negate());
 					}
@@ -149,11 +155,17 @@ namespace Graph
 						return entries.front();
 					}
 				}
-
+				std::cout << "aggregate + unit" << std::endl;
+				for (IPulse* entry : entries)
+				{
+					std::cout << "entry: " << entry->print() << std::endl;
+				}
 				return new AggregatedPulse(negative, variables, entries);
 			}
 			case Pulse:
 			{
+				std::cout << "this happens" << std::endl;
+				std::cout << "pulse " << pulse.print() << " is added"<<std::endl;
 				if (pulse != *this || !pulse.isNegative())
 				{
 					return pulse + *this;
@@ -269,6 +281,11 @@ namespace Graph
 					}
 				}
 
+				std::cout << "aggregate + pulse" << std::endl;
+				for (IPulse* entry : entries)
+				{
+					std::cout << "entry: " << entry->print() << std::endl;
+				}
 				return new AggregatedPulse(negative, variables, entries);
 			}
 			case PulseType::AggregatedPulse:
@@ -452,6 +469,12 @@ namespace Graph
 					}
 				}
 
+				std::cout << "aggregate + aggregate" << std::endl;
+				for (IPulse* entry : entries)
+				{
+					std::cout << "entry: " << entry->print() << std::endl;
+				}
+
 				return new AggregatedPulse(!(pulse.isNegative() && negative), variables, entries);
 			}
 		}
@@ -507,7 +530,7 @@ namespace Graph
 
 		for (int i = 0; i < entries.size(); i++)
 		{
-			result += "(" + entries[i]->print() + ")";
+			result += entries[i]->print();
 			if (i < entries.size() - 1)
 			{
 				result += ", ";
@@ -520,7 +543,7 @@ namespace Graph
 
 	bool AggregatedPulse::isNegative()
 	{
-		return true;
+		return negative;
 	}
 
 	Graph::IPulse* Graph::AggregatedPulse::negate()

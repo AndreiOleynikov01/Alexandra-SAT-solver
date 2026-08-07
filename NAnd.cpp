@@ -34,12 +34,10 @@ namespace Graph
 
 		if (is_visited)
 		{
-			std::cout << "accumulating " << me << std::endl;
 			accumulator->accumulate(sat_trace);
 		}
 		else
 		{
-			std::cout << "propagating " << me << std::endl;
 			Utilities::ThreadPool::make_thread(Graph::Propagate(Utilities::Stack(sat_trace), Utilities::Stack(latch_trace), right));
 			left->propagate(sat_trace, latch_trace);
 		}

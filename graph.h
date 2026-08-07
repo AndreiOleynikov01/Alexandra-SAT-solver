@@ -73,7 +73,6 @@ namespace Graph
 
 	class AggregatedPulse : public virtual IPulse
 	{
-		int size;
 		bool negative;
 		std::vector<int> variables;
 		std::vector<IPulse*> entries;

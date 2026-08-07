@@ -16,7 +16,6 @@ namespace Graph
 
 	void NTrue::propagate(Utilities::Stack sat_trace, Utilities::Stack latch_trace)
 	{
-		std::cout << "1 is visited" << std::endl;
-		accumulator->accumulate(sat_trace, me, true);
+		accumulator->accumulate(sat_trace, latch_trace.top(), true);
 	}
 }

@@ -31,12 +31,10 @@ namespace Graph
 		sat_trace.push(me);
 		if (is_visited)
 		{
-			std::cout << "accumulating " << me << std::endl;
 			accumulator->accumulate(sat_trace);
 		}
 		else
 		{
-			std::cout << "propagating " << me << std::endl;
 			fanin->propagate(sat_trace, latch_trace);
 		}
 	}

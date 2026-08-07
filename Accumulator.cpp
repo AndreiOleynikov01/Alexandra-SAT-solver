@@ -26,9 +26,16 @@ namespace Graph
 
 			if (value == NULL)
 			{
-				std::vector<Graph::IPulse*> pulses;
-				pulses.push_back(&pulse);
-				value = new Graph::Pulse(false, pulses);
+				if ((pulse.type == IPulse::PulseType::Pulse && !pulse.isNegative())|| pulse.type == IPulse::UnitPulse)
+				{
+					value = &pulse;
+				}
+				else
+				{
+					std::vector<Graph::IPulse*> pulses;
+					pulses.push_back(&pulse);
+					value = new Graph::Pulse(false, pulses);
+				}
 			}
 			else
 			{
@@ -43,26 +50,28 @@ namespace Graph
 					//delete open_pulse;
 				}
 				else
-				{
+				{ 
+					if (value->type == IPulse::PulseType::UnitPulse)
+					{
+						std::vector<Graph::UnitPulse*> units;
+						units.push_back(dynamic_cast<Graph::UnitPulse*>(value));
+						value = new Pulse(false, std::vector<IPulse*>(), units);
+					}
+
 					value = *value + pulse;
 
 					if (value->type == IPulse::PulseType::UnitPulse)
 					{
-						satisfied = true;
+						if (dynamic_cast<Graph::UnitPulse*>(value)->value == CONFLICT && negative)
+						{
 
-						//delete value;
+							IPulse* open_me = delete_buffer->open();
+							IPulse* open_pulse = pulse.open();
 
-						IPulse* open_me = delete_buffer->open();
-						IPulse* open_pulse = pulse.open();
-
-						value = *open_me + *open_pulse;
-
-						//delete open_me;
-						//delete open_pulse;
+							value = *open_me + *open_pulse;
+						}
 					}
 				}
-
-				//delete delete_buffer;
 			}
 
 			fold_count++;
@@ -105,7 +114,7 @@ namespace Graph
 
 				if (value->type == IPulse::PulseType::UnitPulse)
 				{
-					if (dynamic_cast<Graph::UnitPulse*>(value)->value == CONFLICT && (!master||!negative))
+					if (dynamic_cast<Graph::UnitPulse*>(value)->value == CONFLICT && (negative))
 					{
 						satisfied = true;
 						//delete value;
@@ -167,6 +176,24 @@ namespace Graph
 				intermidiate_value = value;
 			}
 		}
+
+		if (value->type != IPulse::PulseType::Pulse)
+		{
+			std::vector<Graph::UnitPulse*>units;
+			std::vector<Graph::IPulse*>pulses;
+
+			if (value->type == IPulse::PulseType::UnitPulse)
+			{
+				units.push_back(dynamic_cast<Graph::UnitPulse*>(intermidiate_value));
+			}
+			else
+			{
+				pulses.push_back(intermidiate_value);
+			}
+
+			intermidiate_value = new Pulse(false, pulses, units);
+		}
+
 		std::cout<<"folding "<<intermidiate_value->print()<<std::endl;
 		
 		if (!master)
@@ -206,7 +233,6 @@ namespace Graph
 			node->set_master();
 			master_pointer = id;
 		}
-		std::cout << id->value << " is created" << std::endl;
 		accNodes[id->value] = node;
 	}
 
@@ -223,7 +249,6 @@ namespace Graph
 		while (iterator != NULL)
 		{
 
-			std::cout << variable << " sat trace: " << iterator->value << std::endl;
 			current_node = get_node(iterator);
 			if (current_node == NULL)
 			{
@@ -258,7 +283,6 @@ namespace Graph
 
 		while (iterator != NULL)
 		{
-			std::cout << sat_trace.top()<<" sat trace: " << iterator->value << std::endl;
 			current_node = get_node(iterator);
 			if (current_node == NULL)
 			{
@@ -281,15 +305,7 @@ namespace Graph
 
 	IPulse* Accumulator::solve()
 	{
-		for (auto p = accNodes.begin(); p != accNodes.end(); p++)
-		{
-			if (p->second->child_nodes == 0)
-			{
-				std::cout << p->first << " is empty " << (p->second->get_result() == NULL) << std::endl;
-			}
-			
-
-		}
+		
 		for (auto p = accNodes.begin(); p != accNodes.end(); p++)
 		{
 			if (p->second->child_nodes == 0)
