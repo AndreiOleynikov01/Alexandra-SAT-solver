@@ -207,6 +207,8 @@ namespace Graph
 				}
 				count++;
 			}
+
+			std::cout << right_unit_buffer.size() << " elements in the buffer" << std::endl;
 			if (!found)
 			{
 				size = right_pulse_buffer.size();
@@ -414,7 +416,7 @@ namespace Graph
 			
 			if (satisfied)
 			{
-				IPulse return_value = Pulse(negative, pulse_vec, unit_vec);
+				Pulse return_value = Pulse(negative, pulse_vec, unit_vec);
 				return return_value.open();
 			}
 			else
